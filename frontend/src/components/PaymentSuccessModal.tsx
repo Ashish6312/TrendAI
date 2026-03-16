@@ -333,21 +333,21 @@ export default function PaymentSuccessModal({ isOpen, onClose, paymentDetails }:
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter italic"
+                    className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase"
                   >
-                    Deployment <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-blue-600">Successful.</span>
+                    Your Plan <br className="sm:hidden" />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-gray-200 dark:to-white">is Active</span>
                   </motion.h1>
                   
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-900/5 dark:bg-white/[0.02] border border-slate-900/10 dark:border-white/10 backdrop-blur-3xl shadow-xl"
+                    className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-2 sm:py-2.5 rounded-full bg-slate-900/5 dark:bg-white/[0.05] border border-slate-900/10 dark:border-white/10 backdrop-blur-3xl shadow-xl"
                   >
-                    <Crown size={18} className="sm:w-[22px] sm:h-[22px] animate-pulse" style={{ color: currentPlanFeatures.color }} />
-                    <span className="font-black text-lg sm:text-xl tracking-tighter uppercase italic" style={{ color: currentPlanFeatures.color }}>
-                      {planParam} Protocol Active
+                    <Crown size={16} className="sm:w-[20px] sm:h-[20px] animate-pulse" style={{ color: currentPlanFeatures.color }} />
+                    <span className="font-black text-sm sm:text-base tracking-tight uppercase" style={{ color: currentPlanFeatures.color }}>
+                      {planParam} Tier
                     </span>
                   </motion.div>
                 </div>
@@ -362,18 +362,18 @@ export default function PaymentSuccessModal({ isOpen, onClose, paymentDetails }:
                   <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-500/5 dark:to-emerald-500/[0.02] opacity-0 group-hover/details:opacity-100 transition-opacity duration-700" />
                   
                   <div className="text-center relative z-10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 mb-2">Network ID</p>
-                    <p className="font-mono text-[10px] font-bold text-slate-600 dark:text-slate-200 truncate px-2">{paymentId}</p>
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1 sm:mb-2">Receipt ID</p>
+                    <p className="font-mono text-[9px] sm:text-[10px] font-bold text-slate-600 dark:text-slate-300 truncate px-2">{paymentId}</p>
                   </div>
                   <div className="text-center relative z-10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 mb-2">Capital Allocation</p>
-                    <p className="font-black text-2xl text-slate-900 dark:text-white tracking-tighter italic">
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1 sm:mb-2">Total Paid</p>
+                    <p className="font-black text-xl sm:text-2xl text-slate-900 dark:text-emerald-400 tracking-tighter italic">
                       {currency === 'INR' ? '₹' : '$'}{parseInt(amount).toLocaleString()}
                     </p>
                   </div>
                   <div className="text-center relative z-10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 mb-1 sm:mb-2">Refresh Cycle</p>
-                    <p className="font-black text-slate-900 dark:text-white uppercase italic text-sm tracking-widest">{billingCycle}</p>
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1 sm:mb-2">Billing Cycle</p>
+                    <p className="font-black text-slate-900 dark:text-white uppercase italic text-xs sm:text-sm tracking-[0.2em]">{billingCycle}</p>
                   </div>
                 </motion.div>
 
@@ -384,9 +384,9 @@ export default function PaymentSuccessModal({ isOpen, onClose, paymentDetails }:
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="bg-slate-900/5 dark:bg-white/[0.02] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 border border-slate-900/10 dark:border-white/5"
+                    className="bg-slate-900/5 dark:bg-white/[0.02] rounded-2xl sm:rounded-[2rem] p-5 sm:p-7 border border-slate-900/10 dark:border-white/5"
                   >
-                    <h3 className="text-[10px] sm:text-[11px] font-black text-slate-900 dark:text-white mb-4 sm:mb-6 uppercase tracking-[0.3em] italic opacity-50 text-center sm:text-left">Authorized Privileges</h3>
+                    <h3 className="text-[9px] sm:text-[10px] font-black text-slate-900 dark:text-white mb-4 sm:mb-6 uppercase tracking-[0.4em] italic opacity-60 text-center">Included Features</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {currentPlanFeatures.features.map((feature: string) => (
                          <div
