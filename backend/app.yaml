@@ -1,0 +1,57 @@
+# Google App Engine configuration for Business Intelligence API
+runtime: python312
+
+# Environment variables for Google Cloud SQL and other services
+env_variables:
+  # Database Configuration
+  DB_USER: "postgres"
+  DB_NAME: "business_intelligence"
+  # DB_PASSWORD should be set in Google Cloud Console for security
+  
+  # API Configuration
+  FRONTEND_URL: "https://trendai-ui.onrender.com/"
+  
+  # External API Keys (set these in Google Cloud Console)
+  # POLLINATION_API_KEY: "your-api-key"
+  # RAZORPAY_KEY_ID: "your-razorpay-key"
+  # RAZORPAY_KEY_SECRET: "your-razorpay-secret"
+
+# Automatic scaling configuration
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6
+  target_throughput_utilization: 0.6
+
+# Resource allocation
+resources:
+  cpu: 1
+  memory_gb: 2
+  disk_size_gb: 10
+
+# Health check configuration
+readiness_check:
+  path: "/health"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+
+liveness_check:
+  path: "/health"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 4
+  success_threshold: 2
+
+# Network configuration
+network:
+  forwarded_ports:
+    - 8000
+
+# Handlers for static files and API routes
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
+    redirect_http_response_code: 301

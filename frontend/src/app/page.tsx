@@ -1,0 +1,910 @@
+"use client";
+
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { locationAPI } from "@/utils/locationAPI";
+
+import {
+  ArrowRight, Zap, Rocket,
+  Globe2, Cpu, MapPin,
+  Network, Layers, Star, ShieldCheck
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import AINetworkBackground from "@/components/AINetworkBackground";
+import CountUp from "react-countup";
+
+export default function Home() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [detectedLocation, setDetectedLocation] = useState<{ city: string, country: string } | null>(null);
+
+  useEffect(() => {
+    const detect = async () => {
+      const loc = await locationAPI.detectUserLocation();
+      if (loc) {
+        setDetectedLocation({ city: loc.city, country: loc.country });
+      }
+    };
+    detect();
+  }, []);
+
+  const handleStartScan = () => {
+    if (session) {
+      router.push("/dashboard");
+    } else {
+      router.push("/auth");
+    }
+  };
+
+  const fadeInUp = {
+    initial: { opacity: 0, y: 60 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+  };
+
+  const staggerContainer = {
+    initial: {},
+    whileInView: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#020617] dark:via-[#0f172a] dark:to-[#1e1b4b] selection:bg-blue-500/30 overflow-x-hidden min-h-screen transition-colors duration-500">
+
+      {/* 1. WELCOME SECTION - Immersive Split Layout */}
+      <section id="hero" className="w-full relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* AI Neural Network Background - Full Screen */}
+        <div className="absolute inset-0 z-0">
+          <AINetworkBackground />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/50 to-white dark:via-[#020617]/50 dark:to-[#020617] pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+            {/* Left Side: Strategic Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-8 text-left"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+                className="inline-flex items-center gap-2 p-1 pr-4 rounded-full bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 backdrop-blur-xl shadow-2xl"
+              >
+                <div className="flex -space-x-1">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-800 shadow-lg overflow-hidden">
+                      <img src={`https://i.pravatar.cc/100?img=${i + 45}`} alt="User" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400">
+                  <span className="animate-pulse mr-2 inline-block w-2 h-2 bg-cyan-500 rounded-full" />
+                  SMART BUSINESS AI
+                </span>
+              </motion.div>
+
+              <div className="space-y-4">
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.2 }}
+                  className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-slate-900 dark:text-white leading-[0.9] drop-shadow-sm"
+                >
+                  Blueprint Your <br />
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-600 italic">Success Story.</span>
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 1 }}
+                  className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-xl font-medium leading-relaxed"
+                >
+                  Use our smart AI to find the best business opportunities in your city before anyone else.
+                </motion.p>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex flex-col sm:flex-row gap-4 items-start"
+              >
+                <button
+                  onClick={handleStartScan}
+                  className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1 transition-all duration-300 rounded-xl active:scale-95 flex items-center justify-center gap-2"
+                >
+                  START FREE SCAN
+                  <ArrowRight size={16} />
+                </button>
+                <Link href="/acquisition-tiers" className="w-full sm:w-auto px-10 py-4 bg-white/10 dark:bg-white/5 border border-slate-300/50 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-black uppercase tracking-widest transition-all duration-500 backdrop-blur-xl flex items-center justify-center hover:bg-white/20 dark:hover:bg-white/10 rounded-xl">
+                  VIEW PRICING
+                </Link>
+              </motion.div>
+
+              {/* Quick Nav - Immersive */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="flex flex-wrap gap-4 pt-4 border-t border-slate-200/50 dark:border-white/5"
+              >
+                {[
+                  { label: "Features", href: "#features" },
+                  { label: "Business Plan", href: "#business-plan" },
+                  { label: "Success Stories", href: "#testimonials" }
+                ].map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.href}
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            {/* Right Side: Visual Data Display */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, x: 50 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="hidden lg:block relative"
+            >
+              <div className="absolute -inset-20 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[100px] animate-pulse-slow" />
+
+              <div className="relative group perspective-1000">
+                <motion.div
+                  whileHover={{ rotateY: -10, rotateX: 5 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                >
+                  {/* Internal Grid Lines */}
+                  <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-800 opacity-20" />
+
+                  <div className="relative space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Scanning: ACTIVE</div>
+                        <div className="text-2xl font-black text-slate-900 dark:text-white">Smart Analysis</div>
+                      </div>
+                      <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                        <Zap size={24} className="text-emerald-500 animate-pulse" />
+                      </div>
+                    </div>
+
+                    <div className="h-64 relative bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden group">
+                      <img src="/analysis.png" alt="Data" className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-1000" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                        <div className="text-white">
+                          <div className="text-xs font-bold opacity-70">Saturation Level</div>
+                          <div className="text-xl font-black">Low - 14.3%</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[10px] px-2 py-0.5 bg-emerald-500 rounded-full text-white font-bold mb-1">RECOMMENDED</div>
+                          <div className="text-emerald-400 font-black">HIGH PROFIT</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                        <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Growth Index</div>
+                        <div className="text-lg font-black text-slate-900 dark:text-white">+284%</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                        <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Demand Score</div>
+                        <div className="text-lg font-black text-slate-900 dark:text-white">9.4 / 10</div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Floating Elements around the visual */}
+                <motion.div
+                  animate={{ y: [0, -15, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute -top-6 -right-6 p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl"
+                >
+                  <Star className="text-yellow-500 fill-yellow-500" size={20} />
+                </motion.div>
+
+                <motion.div
+                  animate={{ y: [0, 15, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                  className="absolute -bottom-10 -left-6 p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl"
+                >
+                  <ShieldCheck className="text-emerald-500" size={24} />
+                </motion.div>
+              </div>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 2. SIMPLE MARKET TOOLS */}
+      <section id="features" className="w-full responsive-container ultra-compact-section scroll-mt-20">
+        <div className="grid lg:grid-cols-2 compact-gap-6 items-center">
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            whileInView="whileInView"
+            className="compact-space-y-4"
+          >
+            <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-emerald-500/15 dark:bg-emerald-500/10 border border-emerald-500/30 dark:border-emerald-500/20 compact-text-xs font-black text-emerald-600 dark:text-emerald-400 tracking-[0.3em] uppercase shadow-lg">
+              <Globe2 size={12} /> LIVE DATA
+            </div>
+            <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
+              Better <span className="text-emerald-600 dark:text-emerald-400 underline decoration-emerald-500/30 underline-offset-2 italic">Data.</span> <br />
+              <span className="text-slate-500 dark:text-slate-400">Launch Faster.</span>
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">Most people guess. We give you a plan. TrendAI looks at what people are searching for in your city to find what's missing.</p>
+
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              className="grid grid-cols-1 sm:grid-cols-2 compact-gap-4"
+            >
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{
+                  scale: 1.03,
+                  y: -8,
+                  boxShadow: "0 25px 50px rgba(16, 185, 129, 0.15)"
+                }}
+                transition={{ duration: 0.3 }}
+                className="compact-card bg-white/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 compact-space-y-3 cursor-pointer transition-all duration-300 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/30 shadow-lg hover:shadow-xl backdrop-blur-sm"
+              >
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-10 h-10 rounded-xl bg-emerald-600/15 dark:bg-emerald-600/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-lg"
+                >
+                  <Network size={16} />
+                </motion.div>
+                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">World Search</h4>
+                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">Find business ideas in any city or town.</p>
+              </motion.div>
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{
+                  scale: 1.03,
+                  y: -8,
+                  boxShadow: "0 25px 50px rgba(245, 158, 11, 0.15)"
+                }}
+                transition={{ duration: 0.3 }}
+                className="compact-card bg-white/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 compact-space-y-3 cursor-pointer transition-all duration-300 hover:bg-amber-50/80 dark:hover:bg-amber-950/30 shadow-lg hover:shadow-xl backdrop-blur-sm"
+              >
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-10 h-10 rounded-xl bg-amber-600/15 dark:bg-amber-600/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-lg"
+                >
+                  <Layers size={16} />
+                </motion.div>
+                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">Profit Focus</h4>
+                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">Our AI predicts profits to help you lower risk.</p>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, rotate: 5 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1 }}
+            className="relative"
+          >
+            <div className="absolute -inset-4 bg-emerald-600/10 dark:bg-emerald-600/5 rounded-full blur-[50px] animate-pulse" />
+            <img
+              src="/analysis.png"
+              alt="Market Results"
+              className="compact-img relative border border-slate-200/50 dark:border-slate-700/50 shadow-2xl transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full backdrop-blur-sm max-h-[350px] md:max-h-none object-contain md:object-cover"
+            />
+            {/* Overlay Stat Card - Dynamic & Interactive */}
+            <motion.div 
+              initial={{ x: -20, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="absolute -bottom-3 -left-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl p-5 space-y-3 border border-emerald-500/40 dark:border-emerald-500/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-20 min-w-[220px]"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    <MapPin size={14} className="animate-bounce" />
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 tracking-[0.2em] uppercase">
+                    {detectedLocation ? `${detectedLocation.city}, ${detectedLocation.country}` : 'Detecting...'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">LIVE</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-xl lg:text-2xl font-black text-slate-900 dark:text-white tracking-tighter italic">High Profit Chance</div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">AI Confidence Score: 94%</p>
+              </div>
+
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '94%' }}
+                  transition={{ duration: 1.5, delay: 1.2, ease: "circOut" }}
+                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full relative"
+                >
+                  <motion.div 
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 bg-white/20 skew-x-12"
+                  />
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 3. YOUR STEP-BY-STEP PLAN */}
+      <section id="business-plan" className="w-full bg-slate-100/80 dark:bg-slate-900/50 ultra-compact-section border-y border-slate-200/80 dark:border-slate-700/50 transition-colors duration-500 scroll-mt-20 backdrop-blur-sm">
+        <div className="responsive-container grid md:grid-cols-2 compact-gap-6 items-center">
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            whileInView="whileInView"
+            className="order-2 md:order-1"
+          >
+            <img
+              src="/roadmap.png"
+              alt="Business Plan"
+              className="compact-img border border-slate-200/50 dark:border-slate-700/50 shadow-2xl w-full backdrop-blur-sm max-h-[350px] md:max-h-none object-contain md:object-cover"
+            />
+          </motion.div>
+
+          <div className="order-1 md:order-2 compact-space-y-4">
+            <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-amber-500/15 dark:bg-amber-500/10 border border-amber-500/30 dark:border-amber-500/20 compact-text-xs font-black text-amber-600 dark:text-amber-400 tracking-[0.3em] uppercase shadow-lg">
+              <Cpu size={12} /> EASY PLANNER
+            </div>
+            <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
+              From <span className="text-amber-600 dark:text-amber-400 italic">Idea</span> <br />
+              <span className="text-slate-500 dark:text-slate-400">To Success.</span>
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">Once you find a good idea, we help you create a 6-month step-by-step plan. We guide you from the starting point to growing your business.</p>
+
+            <ul className="compact-space-y-4 relative">
+              {[
+                { title: "Understand Demand", desc: "Know what your local customers are looking for.", delay: 0.1 },
+                { title: "Profit Guide", desc: "See how much money you can realistically make.", delay: 0.2 },
+                { title: "Next Steps", desc: "Easy, actionable steps to start your business.", delay: 0.3 }
+              ].map((item, idx) => (
+                <motion.li
+                  key={idx}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  whileHover={{ x: 8 }}
+                  transition={{ delay: item.delay, duration: 0.3 }}
+                  className="flex compact-gap-4 group cursor-pointer relative"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 180 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-10 h-10 bg-white/80 dark:bg-slate-800/50 group-hover:bg-amber-600/20 dark:group-hover:bg-amber-600/15 rounded-xl flex items-center justify-center shrink-0 border border-slate-200/80 dark:border-slate-700/50 transition-all shadow-lg backdrop-blur-sm"
+                  >
+                    <Zap size={16} className="text-amber-600 dark:text-amber-400" />
+                  </motion.div>
+                  <div className="group-hover:translate-x-2 transition-transform duration-300">
+                    <h4 className="compact-text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight mb-1">{item.title}</h4>
+                    <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">{item.desc}</p>
+                  </div>
+
+                  {/* Workflow connector line */}
+                  {idx < 2 && (
+                    <motion.div
+                      initial={{ scaleY: 0 }}
+                      whileInView={{ scaleY: 1 }}
+                      transition={{ delay: item.delay + 0.3, duration: 0.5 }}
+                      className="absolute left-5 mt-10 w-0.5 h-6 bg-gradient-to-b from-amber-600/50 dark:from-amber-400/50 to-transparent origin-top"
+                    />
+                  )}
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. FEATURES SHOWCASE - Ultra Compact */}
+      <section id="showcase" className="w-full responsive-container ultra-compact-section scroll-mt-20">
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          whileInView="whileInView"
+          className="text-center compact-space-y-4 mb-8"
+        >
+          <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-blue-500/15 dark:bg-blue-500/10 border border-blue-500/30 dark:border-blue-500/20 compact-text-xs font-black text-blue-600 dark:text-blue-400 tracking-[0.3em] uppercase shadow-lg">
+            <Zap size={12} /> POWERFUL FEATURES
+          </div>
+          <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
+            Everything You Need <br />
+            <span className="text-blue-600 dark:text-blue-400 italic">To Succeed.</span>
+          </h2>
+          <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium max-w-3xl mx-auto leading-relaxed px-2 drop-shadow-sm">
+            From market research to business planning, we provide all the tools entrepreneurs need to launch successful ventures.
+          </p>
+        </motion.div>
+
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="whileInView"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 compact-gap-4"
+        >
+          {[
+            {
+              icon: <Globe2 size={20} />,
+              title: "World Market Data",
+              description: "Get live data from 200+ cities with AI tips.",
+              color: "emerald",
+              delay: 0.1
+            },
+            {
+              icon: <Cpu size={20} />,
+              title: "Smart AI Help",
+              description: "Our AI finds the best gaps and predicts your success.",
+              color: "blue",
+              delay: 0.2
+            },
+            {
+              icon: <Rocket size={20} />,
+              title: "6-Month Plan",
+              description: "A step-by-step roadmap to guide you from start to finish.",
+              color: "purple",
+              delay: 0.3
+            },
+            {
+              icon: <Network size={20} />,
+              title: "Competition Analysis",
+              description: "Understand your competitive landscape with detailed competitor insights and positioning strategies.",
+              color: "amber",
+              delay: 0.4
+            },
+            {
+              icon: <Layers size={20} />,
+              title: "Profit Forecasting",
+              description: "Accurate revenue and profit predictions based on local market conditions and demand patterns.",
+              color: "rose",
+              delay: 0.5
+            },
+            {
+              icon: <Zap size={20} />,
+              title: "Real-Time Updates",
+              description: "Stay ahead with live market updates, trend alerts, and opportunity notifications.",
+              color: "indigo",
+              delay: 0.6
+            }
+          ].map((feature, idx) => (
+            <motion.div
+              key={idx}
+              variants={fadeInUp}
+              whileHover={{
+                y: -12,
+                scale: 1.03,
+                rotateY: 3,
+                boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.25)"
+              }}
+              transition={{ duration: 0.3 }}
+              className="group relative compact-feature-card bg-white/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 transition-all duration-300 cursor-pointer overflow-hidden shadow-lg hover:shadow-2xl backdrop-blur-sm rounded-xl"
+            >
+              {/* Animated background gradient */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                whileHover={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-600/10 dark:from-blue-500/10 dark:to-purple-600/15 rounded-xl"
+              />
+
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                className="relative z-10 w-12 h-12 rounded-xl bg-blue-500/15 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4 shadow-lg"
+              >
+                {feature.icon}
+              </motion.div>
+
+              <div className="relative z-10">
+                <motion.h3
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.3 }}
+                  className="compact-text-lg font-black text-slate-900 dark:text-white mb-2 tracking-tight"
+                >
+                  {feature.title}
+                </motion.h3>
+                <motion.p
+                  whileHover={{ x: 5 }}
+                  transition={{ delay: 0.05, duration: 0.3 }}
+                  className="compact-text-sm text-slate-600 dark:text-slate-300 leading-relaxed"
+                >
+                  {feature.description}
+                </motion.p>
+              </div>
+
+              {/* Interactive hover indicator */}
+              <motion.div
+                initial={{ width: 0 }}
+                whileHover={{ width: "100%" }}
+                transition={{ duration: 0.3 }}
+                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-b-xl"
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* 5. TESTIMONIALS SECTION - Ultra Compact */}
+      <section id="testimonials" className="w-full bg-slate-100/80 dark:bg-slate-900/50 ultra-compact-section border-y border-slate-200/80 dark:border-slate-700/50 transition-colors duration-500 scroll-mt-20 backdrop-blur-sm">
+        <div className="responsive-container">
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            whileInView="whileInView"
+            className="text-center compact-space-y-4 mb-8"
+          >
+            <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-purple-500/15 dark:bg-purple-500/10 border border-purple-500/30 dark:border-purple-500/20 compact-text-xs font-black text-purple-600 dark:text-purple-400 tracking-[0.3em] uppercase shadow-lg">
+              <Star size={12} /> SUCCESS STORIES
+            </div>
+            <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
+              Trusted by <span className="text-purple-600 dark:text-purple-400 italic">Founders</span> <br />
+              <span className="text-slate-500 dark:text-slate-400">Worldwide.</span>
+            </h2>
+          </motion.div>
+
+          <div className="relative">
+            {/* Testimonials Carousel - Compact */}
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 compact-gap-4"
+            >
+              {[
+                {
+                  name: "Sarah Chen",
+                  role: "Food Truck Owner",
+                  location: "San Francisco, CA",
+                  quote: "TrendAI helped me find the perfect location for my food truck. I'm now making 3x more revenue than my previous spot!",
+                  revenue: "$45K/month",
+                  avatar: "https://i.pravatar.cc/100?img=1",
+                  delay: 0.1
+                },
+                {
+                  name: "Marcus Rodriguez",
+                  role: "Tech Consultant",
+                  location: "Austin, TX",
+                  quote: "The AI analysis was spot-on. I launched my consulting business in an underserved market and got 20 clients in the first month.",
+                  revenue: "$12K/month",
+                  avatar: "https://i.pravatar.cc/100?img=2",
+                  delay: 0.2
+                },
+                {
+                  name: "Emily Johnson",
+                  role: "Fitness Studio Owner",
+                  location: "Denver, CO",
+                  quote: "Found a gap in boutique fitness that nobody else saw. My studio is booked solid 6 months in advance!",
+                  revenue: "$28K/month",
+                  avatar: "https://i.pravatar.cc/100?img=3",
+                  delay: 0.3
+                }
+              ].map((testimonial, idx) => (
+                <motion.div
+                  key={idx}
+                  variants={fadeInUp}
+                  whileHover={{
+                    y: -8,
+                    scale: 1.02,
+                    rotateY: 3,
+                    boxShadow: "0 25px 50px -12px rgba(139, 92, 246, 0.25)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="group relative compact-testimonial bg-white/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50 hover:border-purple-500/30 dark:hover:border-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden shadow-lg hover:shadow-2xl backdrop-blur-sm rounded-xl"
+                >
+                  {/* Animated background */}
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    whileHover={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 rounded-xl"
+                  />
+
+                  {/* Floating quote marks */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 0.1, scale: 1 }}
+                    whileHover={{ opacity: 0.2, scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute top-3 right-3 text-3xl font-black text-purple-500 dark:text-purple-400 leading-none"
+                  >
+                    "
+                  </motion.div>
+
+                  <div className="relative z-10">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center compact-gap-3 mb-4"
+                    >
+                      <motion.img
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-10 h-10 rounded-full border-2 border-purple-500/30 dark:border-purple-500/20 group-hover:border-purple-500/50 dark:group-hover:border-purple-500/40 transition-colors duration-300 shadow-lg"
+                      />
+                      <div>
+                        <motion.h4
+                          whileHover={{ x: 5 }}
+                          transition={{ duration: 0.3 }}
+                          className="compact-text-sm font-black text-slate-900 dark:text-white"
+                        >
+                          {testimonial.name}
+                        </motion.h4>
+                        <motion.p
+                          whileHover={{ x: 5 }}
+                          transition={{ delay: 0.05, duration: 0.3 }}
+                          className="compact-text-xs text-slate-600 dark:text-slate-300"
+                        >
+                          {testimonial.role}
+                        </motion.p>
+                        <motion.p
+                          whileHover={{ x: 5 }}
+                          transition={{ delay: 0.1, duration: 0.3 }}
+                          className="compact-text-xs text-purple-600 dark:text-purple-400 font-bold"
+                        >
+                          {testimonial.location}
+                        </motion.p>
+                      </div>
+                    </motion.div>
+
+                    <motion.blockquote
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.3 }}
+                      className="compact-text-sm text-slate-700 dark:text-slate-200 leading-relaxed mb-4 italic relative z-10"
+                    >
+                      "{testimonial.quote}"
+                    </motion.blockquote>
+
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-slate-700/50"
+                    >
+                      <span className="compact-text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        Monthly Revenue
+                      </span>
+                      <motion.span
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.3 }}
+                        className="compact-text-lg font-black text-emerald-600 dark:text-emerald-400"
+                      >
+                        {testimonial.revenue}
+                      </motion.span>
+                    </motion.div>
+                  </div>
+
+                  {/* Success indicator */}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    transition={{ delay: testimonial.delay + 0.5, duration: 1 }}
+                    className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-b-xl"
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FINAL CTA - Compact */}
+      <section id="get-started" className="w-full min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        {/* Background Effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/20 dark:bg-emerald-500/10 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 dark:opacity-20 mix-blend-overlay" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6"
+        >
+          {/* Floating Stats with Counters - Compact */}
+          <div className="flex flex-wrap justify-center gap-4 md:block mb-10 md:mb-0">
+            <motion.div
+              initial={{ opacity: 0, x: -100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              transition={{ delay: 0.2 }}
+              className="md:absolute md:top-0 md:left-0 p-3 rounded-xl bg-white/10 dark:bg-white/5 border border-slate-300/20 dark:border-white/10 backdrop-blur-xl group cursor-pointer"
+            >
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              transition={{ delay: 0.5, type: "spring", bounce: 0.5 }}
+              className="text-lg font-black text-emerald-600 dark:text-emerald-400"
+            >
+              <CountUp end={10000} duration={2} suffix="+" />
+            </motion.div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wider">Businesses Launched</div>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full opacity-50"
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            whileHover={{ scale: 1.05, rotate: -2 }}
+            transition={{ delay: 0.4 }}
+            className="md:absolute md:top-0 md:right-0 p-3 rounded-xl bg-white/10 dark:bg-white/5 border border-slate-300/20 dark:border-white/10 backdrop-blur-xl group cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              transition={{ delay: 0.7, type: "spring", bounce: 0.5 }}
+              className="text-lg font-black text-blue-600 dark:text-blue-400"
+            >
+              $<CountUp end={2.5} decimals={1} duration={2.5} suffix="B+" />
+            </motion.div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wider">Revenue Generated</div>
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute -top-1 -left-1 w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full opacity-50"
+            />
+          </motion.div>
+          </div>
+
+          {/* Main Content - Compact */}
+          <div className="space-y-6 sm:space-y-8">
+
+            {/* Title */}
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9]">
+                Start Your <br />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 dark:from-emerald-400 dark:via-teal-400 dark:to-blue-500">Business Now.</span>
+              </h2>
+              <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg font-medium max-w-3xl mx-auto leading-relaxed">
+                Join thousands of founders. Start your free market search today and find your next big opportunity.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+              <button
+                onClick={handleStartScan}
+                className="group px-8 py-3 sm:px-10 sm:py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-black uppercase tracking-wider shadow-[0_15px_30px_-10px_rgba(16,185,129,0.4)] hover:-translate-y-2 hover:scale-105 transition-all duration-500 active:scale-95 flex items-center gap-2"
+              >
+                <Rocket size={16} className="group-hover:rotate-12 transition-transform" />
+                GET STARTED
+              </button>
+
+              <Link
+                href="/acquisition-tiers"
+                className="px-8 py-3 sm:px-10 sm:py-4 rounded-xl bg-slate-200/80 dark:bg-white/10 border border-slate-300/50 dark:border-white/20 text-slate-800 dark:text-white hover:bg-slate-300/80 dark:hover:bg-white/20 text-sm font-black uppercase tracking-wider transition-all duration-500 backdrop-blur-xl flex items-center justify-center hover:-translate-y-1"
+              >
+                VIEW PRICING
+              </Link>
+            </div>
+
+            {/* Success Rate Badge with Animation - Compact */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ delay: 1, type: "spring", bounce: 0.4 }}
+              className="flex justify-center"
+            >
+              <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-white/20 dark:bg-white/5 border border-slate-300/30 dark:border-white/10 backdrop-blur-xl group cursor-pointer">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ delay: 1.2, type: "spring", bounce: 0.6 }}
+                  className="text-xl font-black text-purple-600 dark:text-purple-400"
+                >
+                  <CountUp end={98.7} decimals={1} duration={3} suffix="%" />
+                </motion.div>
+                <div className="text-sm text-slate-700 dark:text-slate-300 uppercase tracking-wider font-bold">Success Rate</div>
+
+                {/* Animated success indicators */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  className="absolute -top-1 -right-1 w-3 h-3 border-2 border-purple-600 dark:border-purple-400 rounded-full"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-purple-600 dark:bg-purple-400 rounded-full"
+                />
+              </div>
+            </motion.div>
+
+            {/* Trust Indicators with Animations - Compact */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+              className="flex flex-wrap justify-center items-center gap-6 pt-4"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-1.5 h-1.5 bg-green-600 dark:bg-green-500 rounded-full"
+                />
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  Live Data
+                </span>
+              </motion.div>
+              <div className="h-3 w-px bg-slate-400 dark:bg-slate-600"></div>
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2"
+              >
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <ShieldCheck size={12} className="text-blue-600 dark:text-blue-400" />
+                </motion.div>
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  Secure & Private
+                </span>
+              </motion.div>
+              <div className="h-3 w-px bg-slate-400 dark:bg-slate-600"></div>
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="flex items-center gap-2"
+              >
+                <motion.div
+                  animate={{ rotate: [0, 15, -15, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Zap size={12} className="text-yellow-600 dark:text-yellow-400" />
+                </motion.div>
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  Instant Results
+                </span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+    </div>
+  );
+}
