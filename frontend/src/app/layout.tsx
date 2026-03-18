@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Using AI to analyze global trends and community feedback to help you build successful businesses.",
 };
 
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,10 +26,12 @@ export default function RootLayout({
       <body className={`${outfit.className} antialiased min-h-screen flex flex-col scroll-smooth`}>
         <div className="bg-glow" />
         <ClientProviders>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <ScrollToTop />
+          <GlobalErrorBoundary>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <ScrollToTop />
+          </GlobalErrorBoundary>
         </ClientProviders>
       </body>
     </html>

@@ -4,9 +4,11 @@ import { ArrowLeft, Mail, MessageSquare, MapPin, Send, Headset } from "lucide-re
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ContactPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -15,10 +17,23 @@ export default function ContactPage() {
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      alert("Intelligence request transmitted. Our strategists will contact you shortly.");
+      alert(t('contact_success'));
       setFormData({ name: "", email: "", subject: "", message: "" });
     }, 1500);
   };
+
+  const contactItems = [
+    { icon: <Mail />, title: t('contact_mail_title'), detail: "ops@trendai.com", subtext: t('contact_mail_sub') },
+    { icon: <MapPin />, title: t('contact_loc_title'), detail: "Global Command Center", subtext: t('contact_loc_sub') },
+    { icon: <Headset />, title: t('contact_support_title'), detail: "Priority Support", subtext: t('contact_support_sub') }
+  ];
+
+  const stats = [
+    { label: "Global Status", val: "Operational", color: "text-emerald-500" },
+    { label: "AI Latency", val: "14ms", color: "text-blue-500" },
+    { label: "AI Core Speed", val: "99.8 TFLOPS", color: "text-purple-500" },
+    { label: "Secured Nodes", val: "1,240+", color: "text-amber-500" }
+  ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#020617] text-slate-900 dark:text-white transition-colors duration-500">
@@ -30,7 +45,7 @@ export default function ContactPage() {
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all group mb-12 font-black uppercase tracking-widest text-[10px]"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-          <span>Go Back</span>
+          <span>{t('go_back')}</span>
         </motion.button>
 
         <div className="grid lg:grid-cols-2 gap-16 items-start">
@@ -40,18 +55,14 @@ export default function ContactPage() {
             className="space-y-12"
           >
             <div>
-              <h1 className="text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter mb-4">Contact Intelligence Hub</h1>
+              <h1 className="text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter mb-4">{t('contact_title')}</h1>
               <p className="text-xl text-slate-500 dark:text-gray-400 font-medium leading-relaxed max-w-md">
-                Deploy your queries to our strategic operations team. We provide 24/7 global support.
+                {t('contact_subtitle')}
               </p>
             </div>
 
             <div className="space-y-8">
-              {[
-                { icon: <Mail />, title: "Digital Communication", detail: "ops@trendai.com", subtext: "Average response: 1.2 hrs" },
-                { icon: <MapPin />, title: "Strategic Headquarters", detail: "Global Command Center", subtext: "Silicon Valley, CA, US" },
-                { icon: <Headset />, title: "Emergency Support", detail: "Intelligence Priority Line", subtext: "Available for Elite Tier" }
-              ].map((item, i) => (
+              {contactItems.map((item, i) => (
                 <div key={i} className="flex gap-6 items-start group">
                   <div className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-600 dark:text-emerald-400 transition-all group-hover:bg-emerald-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-emerald-500/20">
                     {item.icon}
@@ -78,18 +89,18 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">Name</label>
+                  <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">{t('contact_form_name')}</label>
                   <input 
                     required
                     type="text" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="Identify yourself..."
+                    placeholder={t('contact_id_self')}
                     className="w-full px-5 py-4 bg-white dark:bg-black/20 border-2 border-slate-200 dark:border-white/5 rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-500 transition-all outline-none text-sm font-bold"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">Email</label>
+                  <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">{t('contact_form_email')}</label>
                   <input 
                     required
                     type="email" 
@@ -102,25 +113,25 @@ export default function ContactPage() {
               </div>
               
               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">Strategic Objective</label>
+                 <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">{t('contact_form_subject')}</label>
                  <input 
                    required
                    type="text" 
                    value={formData.subject}
                    onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                   placeholder="Subject of inquiry..."
+                   placeholder={t('contact_obj')}
                    className="w-full px-5 py-4 bg-white dark:bg-black/20 border-2 border-slate-200 dark:border-white/5 rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-500 transition-all outline-none text-sm font-bold"
                  />
               </div>
 
               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">Message Directive</label>
+                 <label className="text-[10px] font-black text-slate-500 dark:text-gray-500 uppercase tracking-widest pl-1">{t('contact_form_message')}</label>
                  <textarea 
                    required
                    rows={4}
                    value={formData.message}
                    onChange={(e) => setFormData({...formData, message: e.target.value})}
-                   placeholder="Transmit your message..."
+                   placeholder={t('contact_msg_dir')}
                    className="w-full px-5 py-4 bg-white dark:bg-black/20 border-2 border-slate-200 dark:border-white/5 rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-500 transition-all outline-none text-sm font-bold resize-none"
                  />
               </div>
@@ -134,7 +145,7 @@ export default function ContactPage() {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Transmit Directive</span>
+                    <span>{t('contact_transmit')}</span>
                     <Send size={18} />
                   </>
                 )}
@@ -144,12 +155,7 @@ export default function ContactPage() {
         </div>
 
         <div className="mt-20 pt-10 border-t border-slate-100 dark:border-white/5 grid grid-cols-2 md:grid-cols-4 gap-8">
-           {[
-             { label: "Global Status", val: "Operational", color: "text-emerald-500" },
-             { label: "Network Latency", val: "14ms", color: "text-blue-500" },
-             { label: "AI Core Speed", val: "99.8 TFLOPS", color: "text-purple-500" },
-             { label: "Secured Nodes", val: "1,240+", color: "text-amber-500" }
-           ].map((stat, i) => (
+           {stats.map((stat, i) => (
              <div key={i} className="text-center">
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</div>
                 <div className={`text-sm font-black italic ${stat.color}`}>{stat.val}</div>

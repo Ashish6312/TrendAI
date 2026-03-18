@@ -145,7 +145,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 city: data.locality || data.city || 'Unknown',
                 area: data.localityInfo?.administrative?.[3]?.name || '',
                 currency: getCurrencyByCountry(data.countryName || 'Unknown'),
-                coordinates: { latitude, longitude },
+                coordinates: { lat: latitude, lng: longitude },
                 timestamp: Date.now()
               };
 

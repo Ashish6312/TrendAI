@@ -651,7 +651,7 @@ def get_user_subscription(user_email: str, db: Session = Depends(get_db)):
             "id": 0,
             "user_email": email_normalized,
             "plan_name": "free",
-            "plan_display_name": "Starter",
+            "plan_display_name": "Venture Strategist",
             "status": "active",
             "max_analyses": 5,
             "features": {}
@@ -677,7 +677,7 @@ def get_user_subscription(user_email: str, db: Session = Depends(get_db)):
 def create_payment_record(payment: PaymentCreate, db: Session = Depends(get_db)):
     """Create payment record"""
     email_normalized = payment.user_email.lower().strip()
-    print(f"DEBUG: Creating payment record for {email_normalized} - Amount: {payment.amount}")
+    print(f"DEBUG: Creating payment record for {email_normalized} - Amount: {payment.amount} {payment.currency}")
     
     # Get User ID
     user_rec = db.query(models.User).filter(func.lower(models.User.email) == email_normalized).first()
@@ -691,6 +691,7 @@ def create_payment_record(payment: PaymentCreate, db: Session = Depends(get_db))
             user_email=payment.user_email.lower().strip(),
             subscription_id=payment.subscription_id,
             amount=payment.amount,
+            currency=payment.currency,
             razorpay_payment_id=payment.razorpay_payment_id,
             razorpay_order_id=payment.razorpay_order_id,
             status=payment.status,

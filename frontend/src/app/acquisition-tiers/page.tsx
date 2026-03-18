@@ -66,72 +66,71 @@ export default function AcquisitionTiers() {
   const tiers = [
     {
       id: "starter",
-      name: "Starter",
-      tagline: "Basic Market Research",
+      name: t('price_starter'),
+      tagline: t('price_starter_desc'),
       price: pricing.free.price,
       originalPrice: null,
       icon: <Target size={32} />,
       color: "gray",
       popular: false,
       features: [
-        { text: "5 Market Analyses", available: true },
-        { text: "Basic Business Insights", available: true },
-        { text: "Market Trend Tracking", available: true },
-        { text: "Free Forever Access", available: true },
-        { text: "Standard PDF Reports", available: true },
-        { text: "AI Profit Predictions", available: false },
-        { text: "Full API Access", available: false },
-        { text: "Custom Branding", available: false }
+        { text: t('price_searches'), available: true },
+        { text: t('price_recs'), available: true },
+        { text: t('price_google'), available: true },
+        { text: t('price_free'), available: true },
+        { text: t('price_adv_data'), available: false },
+        { text: t('price_sent'), available: false },
+        { text: t('price_comp'), available: false },
+        { text: t('price_export'), available: false }
       ],
-      cta: "Get Started Free",
+      cta: t('nav_login'),
       href: "/dashboard",
-      description: "Perfect for exploring basic market data and validating your first business ideas."
+      description: t('price_starter_desc')
     },
     {
       id: "professional",
-      name: "Professional",
-      tagline: "Advanced Growth Tools",
+      name: t('price_pro'),
+      tagline: t('price_pro_desc'),
       price: billingCycle === "monthly" ? pricing.professional.monthly : pricing.professional.yearly,
       originalPrice: billingCycle === "monthly" ? pricing.professional.originalMonthly : pricing.professional.originalYearly,
       icon: <Rocket size={32} />,
       color: "emerald",
       popular: true,
       features: [
-        { text: "Unlimited Market Analyses", available: true },
-        { text: "AI Profit Predictions", available: true },
-        { text: "Competitor Analysis", available: true },
-        { text: "Real-time Market Alerts", available: true },
-        { text: "Professional PDF Reports", available: true },
-        { text: "Priority Support (24/7)", available: true },
-        { text: "Team Collaboration Hub", available: true },
-        { text: "Account Manager", available: false }
+        { text: t('price_unlimited'), available: true },
+        { text: t('price_recs'), available: true },
+        { text: t('price_adv_data'), available: true },
+        { text: t('price_sent'), available: true },
+        { text: t('price_comp'), available: true },
+        { text: t('price_export'), available: true },
+        { text: t('price_feat_support'), available: true },
+        { text: t('price_feat_api'), available: false }
       ],
-      cta: "Upgrade to Pro",
+      cta: t('price_upgrade'),
       href: "/dashboard",
-      description: "Designed for serious business owners ready to dominate their local market with advanced AI."
+      description: t('price_pro_desc')
     },
     {
       id: "enterprise",
-      name: "Enterprise",
-      tagline: "Total Business Control",
+      name: t('price_enterprise'),
+      tagline: t('price_enterprise_desc'),
       price: billingCycle === "monthly" ? pricing.enterprise.monthly : pricing.enterprise.yearly,
       originalPrice: billingCycle === "monthly" ? pricing.enterprise.originalMonthly : pricing.enterprise.originalYearly,
       icon: <Crown size={32} />,
       color: "purple",
       popular: false,
       features: [
-        { text: "Everything in Professional", available: true },
-        { text: "Custom Data Integration", available: true },
-        { text: "Full API Access", available: true },
-        { text: "White-label Reports", available: true },
-        { text: "Dedicated Success Manager", available: true },
-        { text: "Specialized Market Nodes", available: true },
-        { text: "Multi-user Management", available: true },
-        { text: "Urgent Priority Support", available: true }
+        { text: t('price_unlimited'), available: true },
+        { text: t('price_feat_api'), available: true },
+        { text: t('price_export'), available: true },
+        { text: t('price_feat_support'), available: true },
+        { text: t('price_feat_multi'), available: true },
+        { text: t('price_custom'), available: true },
+        { text: t('price_contact'), available: true }
       ],
-      cta: "Contact Sales",
+      cta: t('price_contact'),
       href: "/dashboard",
-      description: "The complete solution for large companies requiring deep data and custom integrations."
+      description: t('price_enterprise_desc')
     }
   ];
 
@@ -165,7 +164,7 @@ export default function AcquisitionTiers() {
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 backdrop-blur-xl shadow-2xl"
+                className="inline-flex items-center gap-4 px-6 py-3 rounded-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300"
               >
                 <div className="flex -space-x-3">
                   {[1,2,3,4].map(i => (
@@ -175,28 +174,26 @@ export default function AcquisitionTiers() {
                   ))}
                 </div>
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">Trusted Authority</span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">10k+ Strategic Partnerships</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">{t('price_trusted')}</span>
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t('price_partnerships')}</span>
                 </div>
               </motion.div>
  
               <h1 className="responsive-text-5xl md:responsive-text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight italic">
-                Master the <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-500 animate-gradient-x py-2 inline-block leading-normal">Pricing Plans.</span>
+                {t('price_title')}
               </h1>
  
               <p className="responsive-text-base md:responsive-text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed tracking-tight px-4 opacity-80 dark:opacity-60">
-                Deploy Elite Intelligence engineered for high-stakes capital allocation. 
-                Dismantle competition with clinical precision.
+                {t('price_subtitle')}
               </p>
             </div>
             
             {/* Precision Stats - Compact Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 max-w-4xl mx-auto w-full items-center divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-white/5">
               {[
-                { label: "Capital Deployed", value: "$2.3B+", color: "text-emerald-600 dark:text-emerald-400", sub: "Global Institutional Flow" },
-                { label: "Market Advantage", value: "94%", color: "text-blue-600 dark:text-blue-400", sub: "Alpha Detection Accuracy" },
-                { label: "Precision Rate", value: "99.9%", color: "text-purple-600 dark:text-purple-400", sub: "Operational Reliability" }
+                { label: t('price_stat_capital'), value: "$2.3B+", color: "text-emerald-600 dark:text-emerald-400", sub: "Global Flow" },
+                { label: t('price_stat_market'), value: "94%", color: "text-blue-600 dark:text-blue-400", sub: "AI Accuracy" },
+                { label: t('price_stat_precision'), value: "99.9%", color: "text-purple-600 dark:text-purple-400", sub: "Reliability" }
               ].map((stat, i) => (
                 <div key={i} className="px-6 py-4 md:py-0 text-center group cursor-default transition-all">
                   <div className={`responsive-text-2xl md:responsive-text-3xl font-black ${stat.color} tracking-tighter group-hover:scale-110 transition-transform duration-700 mb-1`}>{stat.value}</div>
@@ -222,7 +219,7 @@ export default function AcquisitionTiers() {
                   </motion.div>
                 )}
  
-                <div className="inline-flex items-center p-1 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-3xl shadow-[0_15px_30px_-5px_rgba(0,0,0,0.3)] relative">
+                <div className="inline-flex items-center p-1.5 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-slate-300 dark:border-white/10 backdrop-blur-3xl shadow-xl relative">
                   <button 
                     onClick={() => setBillingCycle('monthly')}
                     className={`relative z-10 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${billingCycle === 'monthly' ? 'text-slate-900' : 'text-slate-400 hover:text-white'}`}
@@ -230,7 +227,7 @@ export default function AcquisitionTiers() {
                     {billingCycle === 'monthly' && (
                       <motion.div layoutId="activeTab" className="absolute inset-0 bg-white rounded-xl shadow-lg" />
                     )}
-                    <span className="relative z-20">Monthly</span>
+                    <span className="relative z-20">{t('price_bill_monthly')}</span>
                   </button>
                   <button 
                     onClick={() => setBillingCycle('yearly')}
@@ -239,7 +236,7 @@ export default function AcquisitionTiers() {
                     {billingCycle === 'yearly' && (
                       <motion.div layoutId="activeTab" className="absolute inset-0 bg-emerald-500 rounded-xl shadow-[0_10px_20px_rgba(16,185,129,0.3)]" />
                     )}
-                    <span className="relative z-20">Yearly</span>
+                    <span className="relative z-20">{t('price_bill_yearly')}</span>
                   </button>
                 </div>
               </div>
@@ -279,9 +276,7 @@ export default function AcquisitionTiers() {
                 className={`group relative flex flex-col rounded-xl backdrop-blur-3xl border transition-all duration-300 h-full ${
                   tier.popular 
                     ? 'bg-gradient-to-b from-emerald-500/10 via-white/80 to-white/95 dark:from-emerald-500/10 dark:via-slate-900/90 dark:to-slate-900/95 border-emerald-500/30 shadow-[0_10px_25px_-5px_rgba(16,185,129,0.2)] z-20' 
-                    : tier.id === 'enterprise' 
-                    ? 'bg-gradient-to-b from-purple-500/10 via-white/80 to-white/95 dark:from-purple-500/10 dark:via-slate-900/90 dark:to-slate-900/95 border-purple-500/20 hover:border-purple-500/40' 
-                    : 'bg-slate-50/60 dark:bg-slate-900/60 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
+                    : 'bg-white/80 dark:bg-slate-900/60 border-slate-300 dark:border-white/5 hover:border-slate-400 dark:hover:border-white/10 shadow-lg'
                 }`}
               >
                 {/* Popular Badge */}
@@ -311,7 +306,7 @@ export default function AcquisitionTiers() {
 
                   {/* Pricing Section */}
                   <div className="text-center mb-4">
-                    <div className="bg-slate-900/5 dark:bg-white/[0.02] rounded-lg p-3 border border-slate-900/10 dark:border-white/5">
+                    <div className="bg-slate-100 dark:bg-white/[0.02] rounded-lg p-3 border border-slate-200 dark:border-white/5">
                       {tier.originalPrice && (
                         <div className="text-slate-400 dark:text-slate-600 text-[10px] font-bold line-through mb-1 opacity-60">
                           {formatPrice(tier.originalPrice, pricing)}
@@ -326,7 +321,7 @@ export default function AcquisitionTiers() {
                         )}
                       </div>
                       {billingCycle === 'yearly' && typeof tier.price === 'number' && tier.price > 0 && (
-                        <div className="text-[7px] font-bold text-slate-400 dark:text-slate-600 uppercase">Billed Annually</div>
+                        <div className="text-[7px] font-bold text-slate-400 dark:text-slate-600 uppercase">{t('price_bill_annually')}</div>
                       )}
                     </div>
                   </div>
@@ -339,9 +334,7 @@ export default function AcquisitionTiers() {
                       className={`w-full group relative overflow-hidden px-4 py-2.5 rounded-lg font-black text-[8px] uppercase tracking-[0.1em] transition-all duration-300 active:scale-95 ${
                         tier.popular
                           ? 'bg-emerald-600 dark:bg-emerald-500 text-white shadow-emerald-500/20'
-                          : tier.id === 'enterprise'
-                          ? 'bg-purple-700 dark:bg-purple-600 text-white shadow-purple-600/20'
-                          : 'bg-slate-900/5 dark:bg-white/5 text-slate-900 dark:text-white border border-slate-900/10 dark:border-white/10 hover:bg-slate-900/10 dark:hover:bg-white/10'
+                          : 'bg-white dark:bg-white/5 text-slate-900 dark:text-white border border-slate-300 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm'
                       }`}
                     >
                       <span className="relative z-20 flex items-center justify-center gap-1.5 group-hover:gap-2 transition-all">
@@ -371,7 +364,7 @@ export default function AcquisitionTiers() {
                           }`}>
                             {feature.available ? <Check size={6} strokeWidth={3} /> : <X size={6} strokeWidth={3} />}
                           </div>
-                          <span className={`text-[9px] font-medium tracking-tight leading-tight transition-all ${
+                           <span className={`text-[9px] font-medium tracking-tight leading-tight transition-all ${
                             feature.available 
                               ? 'text-slate-600 dark:text-slate-300' 
                               : 'text-slate-300 dark:text-slate-700 line-through opacity-40'

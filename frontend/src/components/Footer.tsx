@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { Zap, Shield, Globe, Mail, ChevronRight } from "lucide-react";
+import { Zap, Shield, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="bg-slate-50 dark:bg-gray-950/80 border-t border-slate-200 dark:border-white/5 backdrop-blur-md transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-20 pb-24 lg:pb-20">
@@ -18,12 +20,12 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-slate-500 dark:text-gray-400 max-w-md text-base font-medium leading-relaxed">
-              Global Strategic Business Intelligence. Powered by advanced AI technology to identify market gaps and consumer sentiment worldwide.
+              {t('foot_desc')}
             </p>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-xs font-bold text-slate-400 dark:text-gray-500 uppercase tracking-widest">
-                System Status: Operational
+                {t('foot_status')}
               </span>
             </div>
           </div>
@@ -32,13 +34,13 @@ export default function Footer() {
           <div className="space-y-6">
             <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
               <Zap size={14} className="text-emerald-500" />
-              Strategic
+              {t('foot_strategic')}
             </h2>
             <ul className="space-y-4">
               {[
-                { label: "Market Scan", path: "/dashboard" },
-                { label: "Pricing", path: "/acquisition-tiers" },
-                { label: "Regional Insights", path: "/dashboard" }
+                { label: t('foot_scan'), path: "/dashboard" },
+                { label: t('nav_pricing'), path: "/acquisition-tiers" },
+                { label: t('foot_regional'), path: "/dashboard" }
               ].map((link) => (
                 <li key={link.label}>
                   <Link 
@@ -57,14 +59,14 @@ export default function Footer() {
           <div className="space-y-6">
             <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
               <Shield size={14} className="text-blue-500" />
-              Legal
+              {t('foot_legal')}
             </h2>
             <ul className="space-y-4">
               {[
-                { label: "Privacy Policy", path: "/privacy" },
-                { label: "Terms of Service", path: "/terms" },
-                { label: "Compliance", path: "/compliance" },
-                { label: "Contact Us", path: "/contact" }
+                { label: t('foot_privacy'), path: "/privacy" },
+                { label: t('foot_terms'), path: "/terms" },
+                { label: t('foot_compliance'), path: "/compliance" },
+                { label: t('foot_contact'), path: "/contact" }
               ].map((link) => (
                 <li key={link.label}>
                   <Link 
@@ -85,11 +87,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
               <span className="text-sm font-bold text-slate-400 dark:text-gray-600 uppercase tracking-wider">
-                © 2024 TrendAI Pro. Strategic Intelligence Engine.
-              </span>
-              <div className="hidden md:block w-1 h-1 bg-slate-400 dark:bg-gray-600 rounded-full"></div>
-              <span className="text-sm font-bold text-slate-400 dark:text-gray-600 uppercase tracking-wider">
-                All Rights Reserved.
+                © 2024 TrendAI Pro. {t('foot_all_rights')}.
               </span>
             </div>
             
@@ -102,7 +100,7 @@ export default function Footer() {
               </div>
               <div className="h-4 w-px bg-slate-300 dark:bg-gray-600"></div>
               <span className="text-xs font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">
-                v2.1.0 Stable
+                {t('foot_stable')}
               </span>
             </div>
           </div>

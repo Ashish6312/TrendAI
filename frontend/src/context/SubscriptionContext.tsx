@@ -89,7 +89,7 @@ const planFeatures = {
     advancedDashboard: false,
     customDataSources: false,
     planName: 'Starter',
-    planDescription: 'Perfect for exploring basic market data and validating your first business ideas.'
+    planDescription: 'Essential AI tools to help you find and explore new business ideas.'
   },
   professional: {
     maxAnalyses: -1, // Unlimited
@@ -107,7 +107,7 @@ const planFeatures = {
     advancedDashboard: true,
     customDataSources: false,
     planName: 'Professional',
-    planDescription: 'Designed for serious business owners ready to scale their research with advanced AI.'
+    planDescription: 'Unlimited business scans and advanced insights for growing entrepreneurs.'
   },
   enterprise: {
     maxAnalyses: -1, // Unlimited
@@ -125,7 +125,7 @@ const planFeatures = {
     advancedDashboard: true,
     customDataSources: true,
     planName: 'Enterprise',
-    planDescription: 'The complete solution for large companies requiring deep data and custom integrations.'
+    planDescription: 'Complete business solutions with API access and dedicated support for large organizations.'
   }
 };
 
@@ -138,61 +138,49 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const loadUserPlan = async () => {
       if (session?.user?.email) {
-        setIsLoading(true);
         const email = session.user.email.toLowerCase().trim();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-        try {
-          // 1. Try fetching from API first (Source of Truth)
-          const response = await fetch(`${apiUrl}/api/subscriptions/${email}`);
-            if (response.ok) {
-              const data = await response.json();
-              console.log('📡 AI Terminal: Fetching subscription for', email);
-              if (data.plan_name && ['free', 'professional', 'enterprise'].includes(data.plan_name)) {
-                console.log('✅ Subscription synced from database:', data.plan_name);
-                setPlanState(data.plan_name as SubscriptionPlan);
-                localStorage.setItem(`subscription_${email}`, data.plan_name);
-                setIsLoading(false);
-                return;
-              } else {
-                console.warn('⚠️ API returned invalid plan name:', data.plan_name);
-              }
-            } else {
-              console.error('❌ API failed with status:', response.status);
-            }
-          } catch (error) {
-            console.error('❌ Database sync connection error:', error);
-          }
-
-        try {
-          // 2. Fallback to localStorage
-          const savedPlan = localStorage.getItem(`subscription_${email}`) as SubscriptionPlan;
-          if (savedPlan && ['free', 'professional', 'enterprise'].includes(savedPlan)) {
-            setPlanState(savedPlan);
-          }
-
-          // 3. Check for recent payment in URL (immediate activation)
-          const urlParams = new URLSearchParams(window.location.search);
-          const paymentPlan = urlParams.get('plan');
-          if (paymentPlan) {
-            const planMapping: Record<string, SubscriptionPlan> = {
-              'Starter': 'free',
-              'Market Explorer': 'free',
-              'Professional': 'professional',
-              'Growth Accelerator': 'professional', 
-              'Enterprise': 'enterprise',
-              'Market Dominator': 'enterprise'
-            };
-            const newPlan = planMapping[paymentPlan] || (paymentPlan.toLowerCase() as SubscriptionPlan);
-            if (['free', 'professional', 'enterprise'].includes(newPlan)) {
-              setPlan(newPlan);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading fallback plan:', error);
+        // 1. Check local cache FIRST for instant UI response
+        const cachedPlan = localStorage.getItem(`subscription_${email}`);
+        if (cachedPlan && ['free', 'professional', 'enterprise'].includes(cachedPlan)) {
+          setPlanState(cachedPlan as SubscriptionPlan);
+          setIsLoading(false);
+        } else {
+          setIsLoading(true);
         }
+
+        try {
+          // 2. Verify with API
+          const response = await fetch(`${apiUrl}/api/subscriptions/${email}`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Robust mapping for plan names
+            const rawPlanName = data.plan_name?.toLowerCase() || '';
+            const rawDisplayName = data.plan_display_name?.toLowerCase() || '';
+            
+            let planToSet: SubscriptionPlan = 'free';
+            
+            if (rawPlanName === 'professional' || rawDisplayName === 'growth architect' || rawDisplayName.includes('professional')) {
+              planToSet = 'professional';
+            } else if (rawPlanName === 'enterprise' || rawDisplayName === 'territorial dominance' || rawDisplayName.includes('enterprise')) {
+              planToSet = 'enterprise';
+            } else {
+              planToSet = 'free';
+            }
+
+            setPlanState(planToSet);
+            localStorage.setItem(`subscription_${email}`, planToSet);
+          }
+        } catch (err) {
+          console.error('❌ AI Terminal: Sync error:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadUserPlan();
@@ -231,17 +219,20 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   // Plan enforcement functions
   const canAccessFeature = (feature: keyof typeof planFeatures.free): boolean => {
-    return planFeatures[plan][feature] as boolean;
+    const currentPlanFeatures = planFeatures[plan as SubscriptionPlan];
+    return !!currentPlanFeatures[feature as keyof typeof currentPlanFeatures];
   };
 
   const getRemainingAnalyses = (currentCount: number): number => {
-    const maxAnalyses = planFeatures[plan].maxAnalyses;
+    const currentPlanFeatures = planFeatures[plan as SubscriptionPlan];
+    const maxAnalyses = currentPlanFeatures.maxAnalyses;
     if (maxAnalyses === -1) return -1; // Unlimited
     return Math.max(0, maxAnalyses - currentCount);
   };
 
   const hasReachedAnalysisLimit = (currentCount: number): boolean => {
-    const maxAnalyses = planFeatures[plan].maxAnalyses;
+    const currentPlanFeatures = planFeatures[plan as SubscriptionPlan];
+    const maxAnalyses = currentPlanFeatures.maxAnalyses;
     if (maxAnalyses === -1) return false; // Unlimited
     return currentCount >= maxAnalyses;
   };

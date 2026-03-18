@@ -7,19 +7,24 @@ import { NotificationProvider } from "@/context/NotificationContext";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { ThemeProvider } from "next-themes";
 
+import { GlobalErrorBoundary, GlobalOfflineDetection } from "./GlobalFallbacks";
+
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <AuthProvider>
-        <LanguageProvider>
-          <SubscriptionProvider>
-            <NotificationProvider>
-              <LoginTracker />
-              {children}
-            </NotificationProvider>
-          </SubscriptionProvider>
-        </LanguageProvider>
-      </AuthProvider>
+      <GlobalErrorBoundary>
+        <AuthProvider>
+          <LanguageProvider>
+            <SubscriptionProvider>
+              <NotificationProvider>
+                <LoginTracker />
+                <GlobalOfflineDetection />
+                {children}
+              </NotificationProvider>
+            </SubscriptionProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </GlobalErrorBoundary>
     </ThemeProvider>
   );
 }

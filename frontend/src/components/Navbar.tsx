@@ -10,6 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useTheme } from "next-themes";
+import { SystemStatusPulse } from "./GlobalFallbacks";
 
 const languages = [
   { code: "English", name: "English" },
@@ -67,15 +68,15 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { path: '/', label: 'Home', icon: Home },
+    { path: '/', label: t('nav_home'), icon: Home },
     { path: '/dashboard', label: t("nav_dashboard"), icon: Zap },
-    { path: '/acquisition-tiers', label: t("btn_pricing"), icon: Zap },
+    { path: '/acquisition-tiers', label: t("nav_pricing"), icon: Zap },
   ];
 
 
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 bg-white/70 dark:bg-[#020617]/70 transition-all duration-500">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b border-slate-300 dark:border-white/5 bg-white/70 dark:bg-[#020617]/70 transition-all duration-500">
       {/* Primary Nav Content - Elevated Layer */}
       <div className="relative z-30 responsive-container px-4 sm:px-6 lg:px-8 h-14 sm:h-20 lg:h-24 flex items-center justify-between gap-2 sm:gap-4">
         {/* LEFT: LOGO */}
@@ -181,13 +182,18 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
+          {/* System Status Pulse */}
+          <div className="hidden md:block">
+            <SystemStatusPulse />
+          </div>
+
           {/* Dark/Light Mode Toggle */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleTheme}
             className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10 shadow-sm relative group overflow-hidden"
-            title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={theme === 'dark' ? t('nav_theme_light') : t('nav_theme_dark')}
           >
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/0 via-blue-500/0 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             {mounted && theme === 'dark' ? (
@@ -273,7 +279,7 @@ export default function Navbar() {
 
                   <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5">
                     <p className="text-[10px] text-slate-400 dark:text-gray-500 text-center font-black uppercase tracking-widest italic opacity-70">
-                      Settings Sync Active
+                      {t('nav_sync_active')}
                     </p>
                   </div>
                 </motion.div>
@@ -288,8 +294,8 @@ export default function Navbar() {
                 onClick={() => router.push('/auth')}
                 className="px-3 sm:px-4 lg:px-8 py-2 sm:py-2.5 lg:py-3.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 active:scale-95 whitespace-nowrap italic"
               >
-                <span className="hidden sm:inline">Get Started</span>
-                <span className="sm:hidden">Start</span>
+                <span className="hidden sm:inline">{t('nav_get_started')}</span>
+                <span className="sm:hidden">{t('auth_init')}</span>
               </button>
             </div>
           )}
@@ -299,12 +305,12 @@ export default function Navbar() {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setShowProfile(!showProfile)}
-                className="flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-white/10"
+                className="flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-200 border border-transparent hover:border-slate-300 dark:hover:border-white/10"
               >
                 <div className="relative">
                   <img 
                     src={session.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name || 'User')}&background=${subscriptionTheme.primary.slice(1)}&color=ffffff&size=200&bold=true`} 
-                    className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border-2 border-white/20 dark:border-white/10 shadow-lg object-cover"
+                    className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border-2 border-slate-200 dark:border-white/10 shadow-lg object-cover"
                     alt="Profile"
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-950 shadow-sm" />
@@ -322,7 +328,7 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-3 w-64 sm:w-80 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] overflow-hidden"
+                    className="absolute right-0 mt-3 w-64 sm:w-80 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-300 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] overflow-hidden"
                     style={{
                       backdropFilter: 'blur(16px)',
                     }}
@@ -332,7 +338,7 @@ export default function Navbar() {
                       <div className="relative">
                         <img 
                           src={session.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name || 'User')}&background=${subscriptionTheme.primary.slice(1)}&color=ffffff&size=200&bold=true`} 
-                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-white/20 dark:border-white/10 object-cover shadow-lg"
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-slate-200 dark:border-white/10 object-cover shadow-lg"
                           alt="Profile"
                         />
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-950 shadow-sm" />
@@ -346,7 +352,7 @@ export default function Navbar() {
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-xs text-green-500 font-bold uppercase tracking-wider">Online</span>
+                          <span className="text-xs text-green-500 font-bold uppercase tracking-wider">{t('nav_online')}</span>
                         </div>
                       </div>
                     </div>
@@ -381,7 +387,7 @@ export default function Navbar() {
                               {planFeatures.planName}
                             </p>
                             <p className="text-[10px] text-slate-500 dark:text-gray-400 font-bold uppercase tracking-widest opacity-70">
-                              Current Plan
+                              {t('nav_current_plan')}
                             </p>
                           </div>
                           {plan === 'free' ? (
@@ -392,7 +398,7 @@ export default function Navbar() {
                               }}
                               className="shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 active:scale-95 italic border border-slate-200 dark:border-white/20"
                             >
-                              Upgrade
+                              {t('nav_upgrade_btn')}
                             </button>
                           ) : (
                             <div className="shrink-0 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
@@ -415,7 +421,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 text-left">
                           <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{t("nav_profile")}</p>
-                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">Manage Account</p>
+                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">{t('nav_manage_account')}</p>
                         </div>
                         <ChevronDown size={12} className="rotate-[-90deg] text-slate-300 dark:text-slate-600" />
                       </button>
@@ -431,8 +437,8 @@ export default function Navbar() {
                           <Zap size={16} className="text-slate-500 dark:text-slate-400 group-hover:text-amber-500 transition-colors" />
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Dashboard</p>
-                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">Analytics View</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{t("nav_dashboard")}</p>
+                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">{t('nav_analytics_view')}</p>
                         </div>
                         <ChevronDown size={12} className="rotate-[-90deg] text-slate-300 dark:text-slate-600" />
                       </button>
@@ -448,8 +454,8 @@ export default function Navbar() {
                           <Settings size={16} className="text-slate-500 dark:text-slate-400 group-hover:text-emerald-500 transition-colors" />
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Upgrade Plan</p>
-                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">View Tiers</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{t("nav_pricing")}</p>
+                          <p className="text-[9px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest opacity-70">{t('nav_view_tiers')}</p>
                         </div>
                         <ChevronDown size={12} className="rotate-[-90deg] text-slate-300 dark:text-slate-600" />
                       </button>
@@ -466,7 +472,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 text-left">
                           <p className="text-sm font-bold text-red-600 dark:text-red-400 uppercase tracking-tight">{t("nav_logout")}</p>
-                          <p className="text-[9px] text-red-400 dark:text-red-500 font-bold uppercase tracking-widest opacity-70">Secure Sign Out</p>
+                          <p className="text-[9px] text-red-400 dark:text-red-500 font-bold uppercase tracking-widest opacity-70">{t('nav_secure_signout')}</p>
                         </div>
                       </button>
                     </div>

@@ -7,7 +7,7 @@ import {
   User, Phone, FileText, Loader2, Save, CheckCircle2, ArrowLeft, ArrowRight,
   ShieldCheck, Crown, Zap, Star, Settings, Calendar, 
   MapPin, Globe, Award, BarChart3, Activity, Clock, Building2, 
-  Target, Sparkles, ChevronRight, Edit3, Camera,
+  Target, Sparkles, ChevronRight, ChevronDown, Edit3, Camera,
   CreditCard, X, RefreshCw
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -21,94 +21,16 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 import LoginHistory from "../../components/LoginHistory";
 import InvoiceModal from "../../components/InvoiceModal";
 
-// Enhanced location detection with GPS and validation
-const getAccurateLocation = async (): Promise<{ country: string; city: string; currency: string; coordinates?: { lat: number; lng: number } } | null> => {
-  // Race IP detection with GPS (IP is usually faster)
-  const ipFetch = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const proxyRes = await fetch(`${apiUrl}/api/system/location`);
-      if (proxyRes.ok) {
-        const data = await proxyRes.json();
-        return {
-          country: data.country || 'Unknown',
-          city: data.city || 'Unknown',
-          currency: data.currency || 'USD'
-        };
-      }
-    } catch (e) {
-      console.warn('Backend location proxy failed, falling back to direct...');
-    }
-    
-    const ipResponse = await fetch('https://ipapi.co/json/');
-    if (ipResponse.ok) {
-      const ipData = await ipResponse.json();
-      return {
-        country: ipData.country_name || 'Unknown',
-        city: ipData.city || 'Unknown',
-        currency: ipData.currency || 'USD'
-      };
-    }
-    throw new Error('IP fetch failed');
-  };
-
-  const gpsFetch = async () => {
-    if (!navigator.geolocation) throw new Error('No GPS');
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, { 
-        enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 
-      });
-    });
-    const { latitude, longitude } = position.coords;
-    const revResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-    if (revResponse.ok) {
-      const geoData = await revResponse.json();
-      return {
-        country: geoData.countryName || 'Unknown',
-        city: geoData.locality || geoData.city || 'Unknown',
-        currency: getCurrencyByCountry(geoData.countryName || 'Unknown'),
-        coordinates: { lat: latitude, lng: longitude }
-      };
-    }
-    throw new Error('RevGeo failed');
-  };
-
-  try {
-    // Race them for speed, but prefer GPS if it finishes fast
-    return await Promise.any([gpsFetch(), ipFetch()]);
-  } catch (error) {
-    console.error('All location methods failed', error);
-    return null;
-  }
-};
-
-const getCurrencyByCountry = (country: string): string => {
-  const currencyMap: { [key: string]: string } = {
-    'India': 'INR',
-    'United States': 'USD',
-    'United Kingdom': 'GBP',
-    'Germany': 'EUR',
-    'France': 'EUR',
-    'Japan': 'JPY',
-    'China': 'CNY',
-    'Brazil': 'BRL',
-    'Canada': 'CAD',
-    'Australia': 'AUD',
-    // Add more as needed
-  };
-  return currencyMap[country] || 'USD';
-};
-
 const getProfessionalPlanName = (name: string): string => {
   const map: { [key: string]: string } = {
-    'free': 'Starter',
-    'starter': 'Starter',
-    'professional': 'Professional',
-    'professional monthly': 'Professional',
-    'professional yearly': 'Professional',
-    'enterprise': 'Enterprise',
-    'enterprise monthly': 'Enterprise',
-    'enterprise yearly': 'Enterprise'
+    'free': 'Venture Strategist',
+    'starter': 'Venture Strategist',
+    'professional': 'Growth Architect',
+    'professional monthly': 'Growth Architect',
+    'professional yearly': 'Growth Architect',
+    'enterprise': 'Territorial Dominance',
+    'enterprise monthly': 'Territorial Dominance',
+    'enterprise yearly': 'Territorial Dominance'
   };
   
   const normalized = name.toLowerCase();
@@ -127,7 +49,8 @@ function ProfilePageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { plan, theme, planFeatures } = useSubscription();
-  const { userLocation, addNotification } = useNotifications();
+  const { userLocation, addNotification, refreshLocation } = useNotifications();
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -154,6 +77,7 @@ function ProfilePageContent() {
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [showAllPayments, setShowAllPayments] = useState(false);
+  const [detectedLocation, setDetectedLocation] = useState<any>(null);
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -220,7 +144,6 @@ function ProfilePageContent() {
     }
   }, [searchParams]);
 
-  const [detectedLocation, setDetectedLocation] = useState<{ country: string; city: string; currency: string; coordinates?: { lat: number; lng: number } } | null>(null);
   const [payments, setPayments] = useState<any[]>([]);
   const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
   
@@ -306,60 +229,22 @@ function ProfilePageContent() {
 
     return () => clearInterval(interval);
   }, [session?.user?.email]);
-  // Enhanced location detection on mount
+  // Sync global location to local state
   useEffect(() => {
-    const detectLocation = async () => {
-      setLocationDetecting(true);
-      try {
-        const location = await getAccurateLocation();
-        if (location) {
-          setDetectedLocation(location);
-        }
-      } catch (error) {
-        console.error('Location detection failed:', error);
-      } finally {
-        setLocationDetecting(false);
-      }
-    };
+    if (userLocation) {
+      setDetectedLocation(userLocation);
+    }
+  }, [userLocation]);
 
-    detectLocation();
-  }, []);
-
-  // Auto-detect location button handler
+  // Auto-detect location button handler (Uses global refresh)
   const handleAutoDetectLocation = async () => {
     setLocationDetecting(true);
     try {
-      const location = await getAccurateLocation();
-      if (location) {
-        setDetectedLocation(location);
-        const locationString = location.coordinates 
-          ? `${location.city}, ${location.country}` 
-          : `${location.city}, ${location.country}`;
-        setFormData({ ...formData, location: locationString });
-        setMessage('Location detected and updated successfully!');
-        setTimeout(() => setMessage(''), 3000);
-        
-        // Add location detection notification
-        addNotification({
-          type: 'system',
-          title: 'Location Detected',
-          message: `Your location has been automatically detected as ${locationString}`,
-          priority: 'medium',
-          actionUrl: '/profile',
-          metadata: {
-            location: locationString,
-            coordinates: location.coordinates,
-            detection_method: location.coordinates ? 'GPS' : 'IP'
-          }
-        });
-      } else {
-        setMessage('Unable to detect location. Please enter manually.');
-        setTimeout(() => setMessage(''), 3000);
-      }
-    } catch (error) {
-      console.error('Location detection failed:', error);
-      setMessage('Location detection failed. Please enter manually.');
+      refreshLocation(); // Use global refresh from NotificationContext
+      setMessage('Refreshing global intelligence node...');
       setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Location refresh failed:', error);
     } finally {
       setLocationDetecting(false);
     }
@@ -370,20 +255,44 @@ function ProfilePageContent() {
       router.push("/");
     }
   }, [status, router]);
+
+  // INSTANT CACHE LOAD (Independent of API Status)
+  useEffect(() => {
+    const email = session?.user?.email?.toLowerCase().trim();
+    if (email && !hasLoaded) {
+      const cachedProfile = localStorage.getItem(`profile_data_${email}`);
+      if (cachedProfile) {
+        try {
+          const parsed = JSON.parse(cachedProfile);
+          setFormData(parsed.formData);
+          setAnalysisCount(parsed.analysisCount);
+          setSubscriptionDetails(parsed.subscriptionDetails);
+          setPayments(parsed.payments || []);
+          setJoinDate(parsed.joinDate ? new Date(parsed.joinDate) : null);
+          setHasLoaded(true);
+          setLoading(false);
+          console.log('📦 AI Terminal: Loaded profile from instant cache');
+        } catch (e) {
+          console.error('Cache parse error:', e);
+        }
+      }
+    }
+  }, [session?.user?.email, hasLoaded]);
   useEffect(() => {
     const fetchProfile = async (silent = false) => {
       if (!session?.user?.email) return;
       
-      // Only show full loading screen on the very first load
-      if (!silent && !hasLoaded) setLoading(true);
-
       const email = session.user.email.toLowerCase().trim();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+      // Only show full loading screen on the very first load if no cache
+      if (!silent && !hasLoaded && !localStorage.getItem(`profile_data_${email}`)) {
+        setLoading(true);
+      }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        
-        // First, sync the user to ensure they exist in the database
-        const userSync = await fetch(`${apiUrl}/api/users/sync`, {
+        // 2. BACKGROUND USER SYNC (Don't wait for this to fetch data)
+        const syncPromise = fetch(`${apiUrl}/api/users/sync`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -391,22 +300,24 @@ function ProfilePageContent() {
             name: session?.user?.name || "",
             image_url: session?.user?.image || ""
           }),
-        });
+        }).catch(err => console.warn('Background sync failed:', err));
 
-        if (!userSync.ok) {
-          console.warn('User sync failed, but continuing with profile fetch');
-        }
-
-        // Now fetch profile data after sync is complete
+        // 3. PARALLEL DATA FETCHING
         const [userRes, historyRes, profileRes] = await Promise.all([
           fetch(`${apiUrl}/api/users/${email}`),
           fetch(`${apiUrl}/api/history/${email}`),
           fetch(`${apiUrl}/api/users/${email}/profile`)
         ]);
 
+        let updatedFormData = formData;
+        let updatedAnalysisCount = analysisCount;
+        let updatedSubscriptionDetails = subscriptionDetails;
+        let updatedPayments = payments;
+        let updatedJoinDate = joinDate;
+
         if (userRes.ok) {
           const data = await userRes.json();
-          setFormData({
+          updatedFormData = {
             name: data.name || session?.user?.name || "",
             bio: data.bio || "",
             phone: data.phone || "",
@@ -415,39 +326,47 @@ function ProfilePageContent() {
             location: data.location || "",
             website: data.website || "",
             industry: data.industry || "",
-          });
-          setJoinDate(data.created_at ? new Date(data.created_at) : null);
+          };
+          setFormData(updatedFormData);
+          updatedJoinDate = data.created_at ? new Date(data.created_at) : null;
+          setJoinDate(updatedJoinDate);
         }
 
         if (historyRes.ok) {
           const historyData = await historyRes.json();
-          setAnalysisCount(historyData.length);
+          updatedAnalysisCount = historyData.length;
+          setAnalysisCount(updatedAnalysisCount);
         }
 
         if (profileRes.ok) {
           const profileData = await profileRes.json();
-          setSubscriptionDetails(profileData.subscription);
-          setPayments(profileData.recent_payments || []);
-          console.log('Profile data loaded:', {
-            subscription: profileData.subscription,
-            payments: profileData.recent_payments?.length || 0
-          });
-        } else {
-          console.error('Failed to load profile data:', await profileRes.text());
+          updatedSubscriptionDetails = profileData.subscription;
+          updatedPayments = profileData.recent_payments || [];
+          setSubscriptionDetails(updatedSubscriptionDetails);
+          setPayments(updatedPayments);
         }
+
+        // 4. PERSIST TO CACHE FOR NEXT LOAD
+        localStorage.setItem(`profile_data_${email}`, JSON.stringify({
+          formData: updatedFormData,
+          analysisCount: updatedAnalysisCount,
+          subscriptionDetails: updatedSubscriptionDetails,
+          payments: updatedPayments,
+          joinDate: updatedJoinDate
+        }));
 
         setLastUpdated(new Date());
         setHasLoaded(true);
       } catch (error: any) {
         console.error("Optimized fetch failed:", error);
-        if (!silent) setMessage("Operating in Lite Mode (Connection Issues)");
-        setHasLoaded(true); // Set hasLoaded to true even on error to show the form
+        if (!silent && !hasLoaded) setMessage("Operating in Offline Mode");
+        setHasLoaded(true); 
       } finally {
         setLoading(false);
       }
     };
 
-    if (status === "authenticated" && !hasLoaded) {
+    if (status === "authenticated" && (!hasLoaded || loading)) {
       fetchProfile();
     }
   }, [session?.user?.email, status]);
@@ -632,7 +551,7 @@ function ProfilePageContent() {
             transition={{ delay: 0.2 }}
             className="text-2xl font-black text-slate-900 dark:text-white mb-2 italic"
           >
-            Loading Your Profile
+            {t('prof_loading')}
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -702,25 +621,24 @@ function ProfilePageContent() {
         </div>
       </div>
 
-      <div className="relative z-10 responsive-container py-6 md:py-8">
-        {/* Header */}
+      <div className="relative z-10 responsive-container py-4 md:py-6">
+        {/* Header - More Compact & Premium */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 lg:mb-6"
         >
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.back()} 
-              className="flex items-center gap-2 lg:gap-3 px-4 lg:px-6 py-2 lg:py-3 rounded-xl lg:rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all group backdrop-blur-sm text-sm lg:text-base italic"
+              className="flex items-center gap-2 lg:gap-3 px-3 lg:px-5 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all group backdrop-blur-sm text-xs lg:text-sm italic shadow-sm"
             >
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="font-black">Back</span>
-              <span className="hidden sm:inline">to Dashboard</span>
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="font-black">{t('nav_dashboard')}</span>
             </button>
 
             {/* Real-time Status Indicator */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-sm shadow-sm">
               <motion.div
                 animate={{
                   scale: isOnline ? [1, 1.2, 1] : 1,
@@ -731,13 +649,10 @@ function ProfilePageContent() {
                   repeat: isOnline ? Infinity : 0,
                   ease: "easeInOut"
                 }}
-                className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400' : 'bg-red-400'}`}
+                className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`}
               />
-              <span className="text-xs text-slate-500 dark:text-gray-400">
-               {isOnline ? 'Live' : 'Offline'}
-              </span>
-              <span className="text-xs text-slate-400 dark:text-gray-500">
-                • {currentTime.toLocaleTimeString()}
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-400">
+               {isOnline ? 'Network Live' : 'Interface Offline'}
               </span>
             </div>
           </div>
@@ -748,33 +663,18 @@ function ProfilePageContent() {
             className="flex items-center gap-3 lg:gap-4 w-full sm:w-auto justify-center sm:justify-end"
           >
             <div 
-              className="px-4 lg:px-6 py-2 lg:py-3 rounded-xl lg:rounded-2xl border font-bold text-xs lg:text-sm flex items-center gap-2 lg:gap-3 backdrop-blur-sm min-w-0"
+              className="px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl border font-black text-[10px] lg:text-xs uppercase tracking-[0.2em] flex items-center gap-2 lg:gap-3 backdrop-blur-md min-w-0"
               style={{ 
                 backgroundColor: `${theme.primary}15`,
                 borderColor: `${theme.primary}40`,
                 color: theme.primary,
-                boxShadow: `0 8px 32px ${theme.primary}20`
+                boxShadow: `0 8px 32px ${theme.primary}10`
               }}
             >
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.05, 1],
-                  opacity: [0.8, 1, 0.8]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-                className="flex-shrink-0"
-              >
-                <PlanIcon size={16} className="lg:w-5 lg:h-5" />
-              </motion.div>
+              <PlanIcon size={14} className="lg:w-4 lg:h-4 flex-shrink-0" />
               <span className="truncate">{planFeatures.planName}</span>
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full flex-shrink-0"
+              <div 
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse"
                 style={{ backgroundColor: theme.primary }}
               />
             </div>
@@ -789,7 +689,7 @@ function ProfilePageContent() {
             className="lg:col-span-1 order-1 lg:order-1"
           >
             <div 
-              className="glass-card p-6 lg:p-8 text-center relative overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10"
+              className="glass-card p-6 lg:p-8 text-center relative overflow-hidden bg-white/80 dark:bg-slate-900/50 border-slate-300 dark:border-white/10 shadow-xl"
               style={{ 
                 borderColor: `${theme.primary}20`,
                 background: `linear-gradient(135deg, ${theme.primary}08, transparent)`
@@ -942,7 +842,7 @@ function ProfilePageContent() {
                 transition={{ delay: 0.6 }}
                 className="grid grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-6"
               >
-                <div className="text-center p-3 lg:p-4 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div className="text-center p-3 lg:p-4 bg-white dark:bg-white/5 rounded-xl border border-slate-300 dark:border-white/10 shadow-sm">
                   <motion.div 
                     className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white mb-1 italic tracking-tighter"
                     initial={{ scale: 0 }}
@@ -953,7 +853,7 @@ function ProfilePageContent() {
                   </motion.div>
                   <div className="text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest">Analyses</div>
                 </div>
-                <div className="text-center p-3 lg:p-4 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div className="text-center p-3 lg:p-4 bg-white dark:bg-white/5 rounded-xl border border-slate-300 dark:border-white/10 shadow-sm">
                   <motion.div 
                     className="text-2xl lg:text-3xl font-black mb-1 italic tracking-tighter"
                     style={{ color: theme.primary }}
@@ -1005,7 +905,7 @@ function ProfilePageContent() {
             className="lg:col-span-3 order-2 lg:order-2"
           >
             {/* Tab Navigation */}
-            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 mb-6 lg:mb-8 p-1 bg-slate-100/50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 mb-6 lg:mb-8 p-1.5 bg-white/50 dark:bg-white/5 rounded-2xl border border-slate-300 dark:border-white/10 backdrop-blur-sm shadow-md">
               {[
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
                 { id: 'profile', label: 'Profile Settings', icon: User },
@@ -1054,21 +954,21 @@ function ProfilePageContent() {
                     <div className="relative z-10">
                       <div className="flex flex-col lg:flex-row items-center gap-12">
                         {/* Interactive Progress Ring */}
-                        <div className="relative shrink-0">
-                          <svg className="w-48 h-48 transform -rotate-90">
-                            <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-900/5 dark:text-white/5" />
+                        <div className="relative shrink-0 mx-auto lg:mx-0">
+                          <svg className="w-32 h-32 md:w-48 md:h-48 transform -rotate-90">
+                            <circle cx="50%" cy="50%" r="42%" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-900/5 dark:text-white/5" />
                             <motion.circle
-                              cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent"
-                              strokeDasharray={552}
-                              initial={{ strokeDashoffset: 552 }}
-                              animate={{ strokeDashoffset: 552 - (552 * completionPercentage()) / 100 }}
+                              cx="50%" cy="50%" r="42%" stroke="currentColor" strokeWidth="8" fill="transparent"
+                              strokeDasharray="264%"
+                              initial={{ strokeDashoffset: "264%" }}
+                              animate={{ strokeDashoffset: `${264 - (264 * completionPercentage()) / 100}%` }}
                               transition={{ duration: 2, ease: "easeOut" }}
                               className="text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"
                             />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter">{completionPercentage()}%</span>
-                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-500/50 uppercase tracking-[0.3em] mt-1">Readiness</span>
+                            <span className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter">{completionPercentage()}%</span>
+                            <span className="text-[8px] md:text-[9px] font-black text-emerald-600 dark:text-emerald-500/50 uppercase tracking-[0.3em] mt-0.5 md:mt-1">Readiness</span>
                           </div>
                         </div>
 
@@ -1081,18 +981,18 @@ function ProfilePageContent() {
                           </div>
 
                           {/* Status Badges - High Engagement */}
-                          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                             <div className={`px-5 py-2.5 rounded-2xl border flex items-center gap-3 transition-all duration-500 font-black italic ${completionPercentage() > 80 ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-xl' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500'}`}>
-                                <Award size={18} />
-                                <span className="text-[10px] uppercase tracking-widest">{completionPercentage() > 80 ? 'Pro User' : 'Basic User'}</span>
+                          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 md:gap-4">
+                             <div className={`px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border flex items-center gap-2 md:gap-3 transition-all duration-500 font-black italic ${completionPercentage() > 80 ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-xl' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500'}`}>
+                                <Award size={16} className="md:w-[18px]" />
+                                <span className="text-[9px] md:text-[10px] uppercase tracking-widest">{completionPercentage() > 80 ? 'Elite Status' : 'Basic User'}</span>
                              </div>
-                             <div className={`px-5 py-2.5 rounded-2xl border flex items-center gap-3 transition-all duration-500 group relative font-black italic ${formData.location ? 'bg-blue-500/20 border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-xl' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500'}`}>
-                                <Globe size={18} className={`${formData.location ? 'animate-pulse' : ''}`} />
-                                <span className="text-[10px] uppercase tracking-widest">{formData.location ? `Searching in ${formData.location.split(',')[0]}` : 'No Location Set'}</span>
+                             <div className={`px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border flex items-center gap-2 md:gap-3 transition-all duration-500 group relative font-black italic ${formData.location ? 'bg-blue-500/20 border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-xl' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500'}`}>
+                                <Globe size={16} className={`md:w-[18px] ${formData.location ? 'animate-pulse' : ''}`} />
+                                <span className="text-[9px] md:text-[10px] uppercase tracking-widest">{formData.location ? `Node: ${formData.location.split(',')[0]}` : 'Grid: Not Set'}</span>
                              </div>
-                             <div className="px-5 py-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center gap-3 font-black italic">
-                                <Target size={18} />
-                                <span className="text-[10px] uppercase tracking-widest">Rank: Top 10%</span>
+                             <div className="px-4 md:px-5 py-2 md:py-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center gap-2 md:gap-3 font-black italic">
+                                <Target size={16} className="md:w-[18px]" />
+                                <span className="text-[9px] md:text-[10px] uppercase tracking-widest">Alpha Tier</span>
                              </div>
                           </div>
 
@@ -1148,7 +1048,7 @@ function ProfilePageContent() {
                         <div className="space-y-4">
                           <div className="p-4 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
                             <div className="flex items-center justify-between mb-2 font-black italic">
-                              <span className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-gray-300">Searches Used</span>
+                              <span className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-gray-300">Regional Intelligence Scans</span>
                               <span className="text-sm text-slate-900 dark:text-white">
                                 {analysisCount} / {planFeatures.maxAnalyses === -1 ? '∞' : planFeatures.maxAnalyses}
                               </span>
@@ -1175,12 +1075,12 @@ function ProfilePageContent() {
                         </h3>
                         <div className="space-y-3">
                           {[
-                            { key: 'advancedFeatures', label: 'AI Profit Engine', icon: BarChart3 },
-                            { key: 'prioritySupport', label: 'Priority Support', icon: ShieldCheck },
-                            { key: 'exportToPdf', label: 'PDF Reports', icon: FileText },
-                            { key: 'apiAccess', label: 'Full API Access', icon: Globe },
-                            { key: 'realTimeAlerts', label: 'Market Alerts', icon: Activity },
-                            { key: 'customReports', label: 'Custom Analysis', icon: Award }
+                            { key: 'advancedFeatures', label: 'Neural Profit Engine', icon: BarChart3 },
+                            { key: 'prioritySupport', label: 'Elite Support Concierge', icon: ShieldCheck },
+                            { key: 'exportToPdf', label: 'Executive Strategic Reports', icon: FileText },
+                            { key: 'apiAccess', label: 'Full API Infrastructure', icon: Globe },
+                            { key: 'realTimeAlerts', label: 'Live Alpha Notifications', icon: Activity },
+                            { key: 'customReports', label: 'Bespoke Tactical Analysis', icon: Award }
                           ].map((feature, index) => (
                             <motion.div 
                               key={feature.key}
@@ -1274,30 +1174,43 @@ function ProfilePageContent() {
                     className="glass-card p-8"
                     style={{ borderColor: `${theme.primary}20` }}
                   >
-                    <div className="flex items-center gap-3 mb-6">
-                      <div 
-                        className="p-3 rounded-xl"
-                        style={{ backgroundColor: `${theme.primary}20` }}
-                      >
-                        <User size={24} style={{ color: theme.primary }} />
-                      </div>
-                      <div className="flex-1">
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tighter">Profile Settings</h2>
-                        <p className="text-slate-500 dark:text-gray-400 font-medium">Update your personal information</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-4">
+                        <div 
+                          className="p-3.5 rounded-2xl bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 shadow-sm"
+                        >
+                          <User size={24} style={{ color: theme.primary }} />
+                        </div>
+                        <div>
+                          <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none mb-1">
+                            {t('prof_header')}
+                          </h2>
+                          <p className="text-slate-500 dark:text-gray-400 text-sm font-bold italic opacity-80">
+                            Update your personal information
+                          </p>
+                        </div>
                       </div>
                       
-                      {/* Auto-save Toggle */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-400">Auto-save</span>
+                      {/* Premium Auto-save Toggle */}
+                      <div className="flex items-center gap-3 bg-slate-900/5 dark:bg-white/5 px-4 py-2.5 rounded-2xl border border-slate-900/10 dark:border-white/10 w-fit">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-gray-500">Auto-save</span>
+                          <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">{autoSave ? 'Enabled' : 'Disabled'}</span>
+                        </div>
                         <button
                           onClick={() => setAutoSave(!autoSave)}
-                          className={`relative w-12 h-6 rounded-full transition-colors ${
-                            autoSave ? 'bg-green-500' : 'bg-gray-600'
-                          }`}
+                          className={`relative w-12 h-6.5 rounded-full transition-all duration-300 outline-none p-1 ${
+                            autoSave 
+                              ? 'bg-emerald-500/20 border-emerald-500/50' 
+                              : 'bg-slate-200 dark:bg-white/10 border-slate-300 dark:border-white/20'
+                          } border`}
                         >
                           <motion.div
-                            animate={{ x: autoSave ? 24 : 2 }}
-                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-lg"
+                            animate={{ 
+                              x: autoSave ? 22 : 0,
+                              backgroundColor: autoSave ? '#10b981' : '#94a3b8'
+                            }}
+                            className="w-4.5 h-4.5 rounded-full shadow-lg"
                           />
                         </button>
                       </div>
@@ -1331,229 +1244,250 @@ function ProfilePageContent() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Name */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Full Name *
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_name')} <span className="text-red-500">*</span>
                           </label>
-                          <div className="relative">
-                            <User size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              type="text"
-                              value={formData.name}
-                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                              placeholder="Enter your full name"
-                              required
-                            />
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <User size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold italic tracking-tight"
+                                placeholder={t('prof_placeholder_name')}
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
 
                         {/* Phone */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Phone Number
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_phone')}
                           </label>
-                          <div className="relative">
-                            <Phone size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              type="tel"
-                              value={formData.phone}
-                              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                              placeholder="+91 98765 43210"
-                            />
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <Phone size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <input
+                                type="tel"
+                                value={formData.phone}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold italic tracking-tight"
+                                placeholder="+1 (555) 000-0000"
+                              />
+                            </div>
                           </div>
                         </div>
 
                         {/* Company */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Company
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_company')}
                           </label>
-                          <div className="relative">
-                            <Building2 size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              type="text"
-                              value={formData.company}
-                              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                              placeholder="Your company name"
-                            />
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <Building2 size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <input
+                                type="text"
+                                value={formData.company}
+                                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold italic tracking-tight"
+                                placeholder="Neural Enterprises Ltd."
+                              />
+                            </div>
                           </div>
                         </div>
 
                         {/* Location */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Location
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_location')}
                           </label>
-                          <div className="relative">
-                            <MapPin size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              type="text"
-                              value={formData.location}
-                              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                              className="w-full pl-12 pr-24 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                              placeholder="Enter your location"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleAutoDetectLocation}
-                              disabled={locationDetecting}
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1.5 text-xs rounded-lg transition-all hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                              style={{ color: theme.primary }}
-                              title="Auto-detect location using GPS"
-                            >
-                              {locationDetecting ? (
-                                <>
-                                  <Loader2 size={12} className="animate-spin" />
-                                  <span>Detecting...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Globe size={12} />
-                                  <span>Auto</span>
-                                </>
-                              )}
-                            </button>
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <MapPin size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <input
+                                type="text"
+                                value={formData.location}
+                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                className="w-full pl-12 pr-24 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold italic tracking-tight"
+                                placeholder="City, Country"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleAutoDetectLocation}
+                                disabled={locationDetecting}
+                                className="absolute right-2 px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter bg-slate-900/5 dark:bg-white/5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all"
+                                style={{ color: theme.primary }}
+                              >
+                                {locationDetecting ? (
+                                  <>
+                                    <Loader2 size={10} className="animate-spin" />
+                                    <span>Syncing...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Globe size={10} />
+                                    <span>Sync GPS</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
                           {detectedLocation && (
-                            <div className="mt-2 p-2 bg-white/5 rounded-lg border border-white/10">
-                              <p className="text-xs text-gray-400 mb-1">Detected location:</p>
-                              <p className="text-sm text-white">
-                                {detectedLocation.city}, {detectedLocation.country}
-                                {detectedLocation.coordinates && (
-                                  <span className="text-xs text-gray-400 ml-2">
-                                    (GPS: {detectedLocation.coordinates.lat.toFixed(4)}, {detectedLocation.coordinates.lng.toFixed(4)})
-                                  </span>
-                                )}
-                              </p>
+                            <motion.div 
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="mt-2 p-3 bg-blue-500/5 rounded-xl border border-blue-500/20 flex flex-col sm:flex-row items-center justify-between gap-3"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-blue-500/10 rounded-lg">
+                                  <Activity size={12} className="text-blue-500" />
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1">{t('prof_location_found')}</p>
+                                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300 italic">
+                                    {detectedLocation.city}, {detectedLocation.country}
+                                  </p>
+                                </div>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => {
                                   const locationString = `${detectedLocation.city}, ${detectedLocation.country}`;
                                   setFormData({ ...formData, location: locationString });
                                 }}
-                                className="text-xs mt-1 px-2 py-1 rounded transition-all hover:bg-white/10"
-                                style={{ color: theme.primary }}
+                                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
                               >
-                                Use this location
+                                {t('prof_deploy_location')}
                               </button>
-                            </div>
-                          )}
-                          {userLocation && userLocation.country !== 'Unknown' && !detectedLocation && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              Fallback: {userLocation.city !== 'Unknown' ? `${userLocation.city}, ` : ''}{userLocation.country}
-                            </p>
+                            </motion.div>
                           )}
                         </div>
 
                         {/* Website */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Website
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_website')}
                           </label>
-                          <div className="relative">
-                            <Globe size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              type="url"
-                              value={formData.website}
-                              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                              placeholder="https://yourwebsite.com"
-                            />
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <Globe size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <input
+                                type="url"
+                                value={formData.website}
+                                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold italic tracking-tight"
+                                placeholder="https://domain.com"
+                              />
+                            </div>
                           </div>
                         </div>
 
                         {/* Industry */}
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-300 mb-2">
-                            Industry
+                        <div className="space-y-2">
+                          <label className="block text-xs font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 ml-1">
+                            {t('prof_industry')}
                           </label>
-                          <div className="relative">
-                            <Target size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <select
-                              value={formData.industry}
-                              onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all appearance-none cursor-pointer font-black italic tracking-tight"
-                              style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                            >
-                              <option value="" className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">Select your industry</option>
-                              <option value="Technology" className="bg-slate-800">Technology</option>
-                              <option value="Healthcare" className="bg-slate-800">Healthcare</option>
-                              <option value="Finance" className="bg-slate-800">Finance</option>
-                              <option value="Education" className="bg-slate-800">Education</option>
-                              <option value="Retail" className="bg-slate-800">Retail</option>
-                              <option value="Manufacturing" className="bg-slate-800">Manufacturing</option>
-                              <option value="Real Estate" className="bg-slate-800">Real Estate</option>
-                              <option value="Food & Beverage" className="bg-slate-800">Food & Beverage</option>
-                              <option value="Consulting" className="bg-slate-800">Consulting</option>
-                              <option value="Marketing" className="bg-slate-800">Marketing</option>
-                              <option value="Agriculture" className="bg-slate-800">Agriculture</option>
-                              <option value="Transportation" className="bg-slate-800">Transportation</option>
-                              <option value="Entertainment" className="bg-slate-800">Entertainment</option>
-                              <option value="Other" className="bg-slate-800">Other</option>
-                            </select>
+                          <div className="relative group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                            <div className="relative flex items-center">
+                              <Target size={18} className="absolute left-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <select
+                                value={formData.industry}
+                                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                                className="w-full pl-12 pr-10 py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer font-bold italic tracking-tight"
+                              >
+                                <option value="" className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white">{t('prof_select_sector')}</option>
+                                <option value="Technology" className="bg-slate-100 dark:bg-slate-900">Technology</option>
+                                <option value="Healthcare" className="bg-slate-100 dark:bg-slate-900">Healthcare</option>
+                                <option value="Finance" className="bg-slate-100 dark:bg-slate-900">Finance</option>
+                                <option value="Education" className="bg-slate-100 dark:bg-slate-900">Education</option>
+                                <option value="Retail" className="bg-slate-100 dark:bg-slate-900">Retail</option>
+                                <option value="Manufacturing" className="bg-slate-100 dark:bg-slate-900">Manufacturing</option>
+                                <option value="Real Estate" className="bg-slate-100 dark:bg-slate-900">Real Estate</option>
+                                <option value="Food & Beverage" className="bg-slate-100 dark:bg-slate-900">Food & Beverage</option>
+                                <option value="Consulting" className="bg-slate-100 dark:bg-slate-900">Consulting</option>
+                                <option value="Marketing" className="bg-slate-100 dark:bg-slate-900">Marketing</option>
+                                <option value="Agriculture" className="bg-slate-100 dark:bg-slate-900">Agriculture</option>
+                                <option value="Transportation" className="bg-slate-100 dark:bg-slate-900">Transportation</option>
+                                <option value="Entertainment" className="bg-slate-100 dark:bg-slate-900">Entertainment</option>
+                                <option value="Other" className="bg-slate-100 dark:bg-slate-900">Other</option>
+                              </select>
+                              <div className="absolute right-4 pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                <ChevronDown size={18} />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                       {/* Bio */}
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="block text-sm font-semibold text-gray-300">
-                            Bio
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between ml-1">
+                          <label className="block text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-gray-400">
+                            {t('prof_bio')}
                           </label>
-                          <span className="text-xs text-gray-500">
-                            {formData.bio.length}/500
+                          <span className={`text-[10px] font-black italic tracking-tighter ${formData.bio.length > 450 ? 'text-amber-500' : 'text-slate-500'}`}>
+                            {formData.bio.length} <span className="opacity-30">/</span> 500
                           </span>
                         </div>
-                        <div className="relative">
-                          <FileText size={18} className="absolute left-4 top-4 text-gray-400" />
-                          <textarea
-                            value={formData.bio}
-                            onChange={(e) => {
-                              if (e.target.value.length <= 500) {
-                                setFormData({ ...formData, bio: e.target.value });
-                              }
-                            }}
-                            rows={4}
-                            className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all resize-none font-bold italic tracking-tight"
-                            style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
-                            placeholder="Tell us about yourself and your business goals..."
-                          />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                          <div className="relative">
+                            <FileText size={18} className="absolute left-4 top-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                            <textarea
+                              value={formData.bio}
+                              onChange={(e) => {
+                                if (e.target.value.length <= 500) {
+                                  setFormData({ ...formData, bio: e.target.value });
+                                }
+                              }}
+                              rows={5}
+                              className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none font-bold italic tracking-tight leading-relaxed"
+                              placeholder="Describe your professional objectives and mission profile..."
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      {/* Submit Button */}
-                      <motion.button
-                        type="submit"
-                        disabled={saving}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full py-4 px-6 rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                        }}
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          {saving ? (
-                            <>
-                              <Loader2 size={20} className="animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save size={20} />
-                              Save Changes
-                            </>
-                          )}
-                        </span>
-                      </motion.button>
+                      {/* Action Command Section */}
+                      <div className="pt-8 border-t border-slate-200 dark:border-white/5">
+                        <motion.button
+                          type="submit"
+                          disabled={saving}
+                          whileHover={{ scale: 1.01, y: -2 }}
+                          whileTap={{ scale: 0.99 }}
+                          className="w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group shadow-2xl shadow-blue-500/20"
+                          style={{ 
+                            background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                          
+                          <span className="relative z-10 flex items-center justify-center gap-3">
+                            {saving ? (
+                              <>
+                                <Loader2 size={16} className="animate-spin" />
+                                <span>{t('prof_saving')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Save size={16} />
+                                <span>{t('prof_save')}</span>
+                              </>
+                            )}
+                          </span>
+                        </motion.button>
+                      </div>
                     </form>
                   </div>
                 </motion.div>
@@ -1571,90 +1505,113 @@ function ProfilePageContent() {
                     className="glass-card p-6 lg:p-8"
                     style={{ borderColor: `${theme.primary}20` }}
                   >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-8 border-b border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-4">
                         <div 
-                          className="p-3 rounded-xl"
-                          style={{ backgroundColor: `${theme.primary}20` }}
+                          className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 shadow-lg shadow-blue-500/5 transition-transform hover:scale-105"
                         >
-                          <Crown size={24} style={{ color: theme.primary }} />
+                          <Crown size={28} className="text-blue-500 animate-pulse" />
                         </div>
                         <div>
-                          <h2 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tighter">Plan & Billing</h2>
-                          <p className="text-slate-500 dark:text-gray-400 text-sm font-medium">Review your subscription, usage, and transaction history</p>
+                          <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none mb-1">
+                            Plan & Billing
+                          </h2>
+                          <p className="text-slate-500 dark:text-gray-400 text-sm font-bold italic opacity-80">
+                            Review your subscription status and financial history
+                          </p>
                         </div>
                       </div>
                       
                       <Link 
                         href="/acquisition-tiers"
-                        className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all flex items-center justify-center gap-2"
+                        className="px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-105 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10 dark:shadow-white/5 group"
                       >
-                        <Zap size={16} style={{ color: theme.primary }} />
-                        Compare Tiers
+                        <Zap size={16} className="text-amber-400 group-hover:scale-125 transition-transform" />
+                        Intelligence Tiers
                       </Link>
                     </div>
 
-                    {/* Current Subscription Status */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-                      {/* Plan Card */}
-                      <div className="lg:col-span-2 p-6 rounded-2xl bg-gradient-to-br from-slate-100/50 dark:from-slate-800/80 to-slate-200/50 dark:to-slate-900/80 border border-slate-200 dark:border-white/5 relative overflow-hidden group shadow-xl">
-                        <div 
-                          className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl opacity-20 transition-all group-hover:opacity-30" 
-                          style={{ background: theme.primary }} 
-                        />
-                        
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between mb-6">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Current Plan</span>
-                                {subscriptionDetails?.status === 'active' && (
-                                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-tighter border border-emerald-500/20">Active</span>
-                                )}
-                              </div>
-                              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight italic">{planFeatures.planName}</h3>
+                    <div className="space-y-10">
+                      {/* Current Subscription Status */}
+                      <div className="grid grid-cols-1 gap-6">
+                        {/* Plan Card - High Fidelity */}
+                        <div className="p-8 rounded-3xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 relative overflow-hidden group shadow-2xl">
+                          {/* Interactive Background Elements */}
+                          <motion.div 
+                            animate={{ 
+                                scale: [1, 1.2, 1],
+                                opacity: [0.1, 0.2, 0.1]
+                            }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-[100px]" 
+                            style={{ background: `radial-gradient(circle, ${theme.primary}, transparent)` }} 
+                          />
+                          
+                          <div className="relative z-10">
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-10">
+                                <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-[0.2em] border border-blue-500/20 shadow-sm">
+                                    Current Deployment
+                                    </span>
+                                    {subscriptionDetails?.status === 'active' && (
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.2em]">Operational</span>
+                                    </div>
+                                    )}
+                                </div>
+                                <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tighter italic leading-none">
+                                    {planFeatures.planName}
+                                </h3>
+                                </div>
+                                
+                                <div className="bg-slate-50 dark:bg-white/[0.05] p-6 rounded-2xl border border-slate-200 dark:border-white/10 min-w-[200px] text-center lg:text-right">
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 block mb-2">Alpha Pricing</span>
+                                <div className="text-3xl font-black text-slate-900 dark:text-white italic flex items-baseline justify-center lg:justify-end gap-2">
+                                    {plan === 'free' ? '0.00' : formatPrice(subscriptionDetails?.price || 0, getPricingForCountry(userLocation?.country || 'Global'))}
+                                    <span className="text-sm text-slate-400">/ {subscriptionDetails?.billing_cycle || 'mo'}</span>
+                                </div>
+                                </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">Price</span>
-                              <div className="text-2xl font-black text-slate-900 dark:text-white italic">
-                                {plan === 'free' ? 'Free Access' : formatPrice(subscriptionDetails?.price || 0, getPricingForCountry(userLocation?.country || 'Global'))}
-                                <span className="text-xs text-slate-400 dark:text-gray-500 font-black ml-1">/ {subscriptionDetails?.billing_cycle || 'Cycle'}</span>
-                              </div>
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-200 dark:border-white/5">
-                            <div>
-                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block mb-1">Renews on</span>
-                              <span className="text-sm font-black text-slate-700 dark:text-slate-200 italic">
-                                {subscriptionDetails?.subscription_end ? new Date(subscriptionDetails.subscription_end).toLocaleDateString() : 'N/A'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block mb-1">Cycle</span>
-                              <span className="text-sm font-black text-slate-700 dark:text-slate-200 capitalize italic">
-                                {subscriptionDetails?.billing_cycle || 'Monthly'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block mb-1">Searches</span>
-                              <span className="text-sm font-black text-slate-700 dark:text-slate-200 italic">
-                                {analysisCount} / {planFeatures.maxAnalyses === -1 ? '∞' : planFeatures.maxAnalyses}
-                              </span>
-                            </div>
-                            <div className="flex items-end justify-end">
-                              <Link 
-                                href="/acquisition-tiers"
-                                className="text-xs font-black uppercase tracking-widest flex items-center gap-1 transition-colors hover:text-white"
-                                style={{ color: theme.primary }}
-                              >
-                                {plan === 'free' ? 'Upgrade' : 'Manage'} <ChevronRight size={12} />
-                              </Link>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-8 border-t border-slate-200 dark:border-white/10">
+                                <div className="space-y-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <Calendar size={12} className="text-blue-500" /> Cycle Reset
+                                </span>
+                                <p className="text-base font-black text-slate-800 dark:text-slate-100 italic">
+                                    {subscriptionDetails?.subscription_end ? new Date(subscriptionDetails.subscription_end).toLocaleDateString() : 'Active Forever'}
+                                </p>
+                                </div>
+                                <div className="space-y-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <Activity size={12} className="text-blue-500" /> Protocol
+                                </span>
+                                <p className="text-base font-black text-slate-800 dark:text-slate-100 capitalize italic">
+                                    {subscriptionDetails?.billing_cycle || 'Standard'}
+                                </p>
+                                </div>
+                                <div className="space-y-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <BarChart3 size={12} className="text-blue-500" /> Scan Quota
+                                </span>
+                                <p className="text-base font-black text-slate-800 dark:text-slate-100 italic">
+                                    {analysisCount} <span className="opacity-20 mx-1">/</span> {planFeatures.maxAnalyses === -1 ? '∞' : planFeatures.maxAnalyses}
+                                </p>
+                                </div>
+                                <div className="flex items-center lg:justify-end">
+                                <Link 
+                                    href="/acquisition-tiers"
+                                    className="group/btn w-full sm:w-auto px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-95"
+                                >
+                                    {plan === 'free' ? 'Upgrade' : 'Elevate'} 
+                                    <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
+                                </Link>
                             </div>
                           </div>
                         </div>
                       </div>
-
                     </div>
 
                     {/* Transaction History Section */}
@@ -1713,9 +1670,9 @@ function ProfilePageContent() {
                       </div>
 
                       {payments.length > 0 ? (
-                        <>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="space-y-4">
+                          <div className="overflow-x-auto -mx-6 px-6">
+                            <table className="w-full text-left min-w-[600px]">
                               <thead>
                                 <tr className="border-b border-slate-200 dark:border-white/5">
                                   <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Invoice ID</th>
@@ -1769,20 +1726,20 @@ function ProfilePageContent() {
                           </div>
 
                           {payments.length > 3 && (
-                            <div className="mt-6 text-center">
+                            <div className="mt-8 text-center pt-6 border-t border-slate-100 dark:border-white/5">
                               <button
                                 onClick={() => setShowAllPayments(!showAllPayments)}
-                                className="px-6 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all hover:bg-slate-200 dark:hover:bg-white/10 flex items-center gap-2 mx-auto italic"
+                                className="px-8 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] hover:scale-105 transition-all flex items-center gap-3 mx-auto shadow-xl"
                               >
                                 {showAllPayments ? (
-                                  <>Show Fewer Transactions <ChevronRight size={14} className="rotate-[-90deg]" /></>
+                                  <>Fewer Transactions <ChevronDown size={14} className="rotate-180" /></>
                                 ) : (
-                                  <>+ {payments.length - 3} More Transactions <ChevronRight size={14} className="rotate-[90deg]" /></>
+                                  <>+ {payments.length - 3} Historical Records <ChevronDown size={14} /></>
                                 )}
                               </button>
                             </div>
                           )}
-                        </>
+                        </div>
                       ) : (
                         <div className="text-center py-12 bg-slate-100/50 dark:bg-white/5 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
                           <CreditCard size={40} className="mx-auto mb-4 text-slate-300 dark:text-slate-600 opacity-50" />
@@ -1835,6 +1792,7 @@ function ProfilePageContent() {
                       )}
                     </div>
                   </div>
+                </div>
 
                   {/* Security & Access Quick View */}
                   <div className="glass-card p-6 lg:p-8 bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-xl" style={{ borderColor: `${theme.primary}10` }}>

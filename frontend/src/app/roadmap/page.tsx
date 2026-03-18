@@ -82,8 +82,8 @@ function RoadmapContent() {
           </div>
         </div>
         <div className="space-y-3 text-center">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase selection:bg-blue-600">Preparing Your Roadmap</h2>
-          <p className="text-slate-500 dark:text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase opacity-70">Analyzing Market Opportunities...</p>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase selection:bg-blue-600">{t("road_preparing")}</h2>
+          <p className="text-slate-500 dark:text-gray-500 text-[10px] font-black tracking-[0.4em] uppercase opacity-70">{t("road_analyzing")}</p>
         </div>
       </div>
     );
@@ -117,7 +117,7 @@ function RoadmapContent() {
           </motion.button>
           
           <div className="flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 bg-emerald-500/10 rounded-xl md:rounded-2xl border border-emerald-500/20 responsive-text-xs font-black text-emerald-400 uppercase tracking-[0.3em] shadow-lg">
-             <Globe2 size={14} className="md:w-4 md:h-4" /> {language} Strategy
+             <Globe2 size={14} className="md:w-4 md:h-4" /> {language} {t("road_strategy")}
           </div>
         </div>
 
@@ -138,10 +138,10 @@ function RoadmapContent() {
                animate={{ opacity: 1, y: 0 }}
                className="inline-flex items-center gap-2 px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 responsive-text-xs font-black text-blue-400 uppercase tracking-widest mb-3 md:mb-4"
             >
-               <ShieldCheck size={12} className="md:w-[14px] md:h-[14px]" /> Business Roadmap
+               <ShieldCheck size={12} className="md:w-[14px] md:h-[14px]" /> {t("road_directive")}
             </motion.div>
             <h1 className="responsive-text-2xl sm:responsive-text-4xl md:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter leading-none max-w-5xl mx-auto italic px-4">
-               Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-400 dark:to-teal-600">Strategic</span> Plan.
+               {t("road_plan_title")}
             </h1>
             <div className="flex flex-col items-center gap-6 md:gap-8">
               <motion.h2 
@@ -188,14 +188,14 @@ function RoadmapContent() {
                   <div className="w-12 h-12 bg-slate-100 dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-white/5 flex items-center justify-center shadow-inner"><Calendar className="text-slate-500 dark:text-gray-500" size={20} /></div>
                   <div className="space-y-1">
                      <div className="text-[9px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest">{t("road_timeline")}</div>
-                     <div className="text-sm font-black text-slate-700 dark:text-gray-300 italic tracking-tight">~ 6 Months Cycle</div>
+                     <div className="text-sm font-black text-slate-700 dark:text-gray-300 italic tracking-tight">{t("road_6_months")}</div>
                   </div>
                </div>
                <div className="flex items-center gap-5">
                   <div className="w-12 h-12 bg-slate-100 dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-white/5 flex items-center justify-center shadow-inner"><Users className="text-slate-500 dark:text-gray-500" size={20} /></div>
                   <div className="space-y-1">
                      <div className="text-[9px] font-black text-slate-400 dark:text-gray-600 uppercase tracking-widest">{t("road_team")}</div>
-                     <div className="text-sm font-black text-slate-700 dark:text-gray-300 italic tracking-tight">Elite Taskforce</div>
+                     <div className="text-sm font-black text-slate-700 dark:text-gray-300 italic tracking-tight">{t("road_taskforce")}</div>
                   </div>
                </div>
             </motion.div>
@@ -207,12 +207,12 @@ function RoadmapContent() {
               transition={{ delay: 0.4 }}
               className="glass-card p-10 bg-gradient-to-br from-blue-600/10 to-transparent border-blue-500/20"
             >
-               <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-6">Expert Execution</h4>
+               <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-6">{t("road_expert_exec")}</h4>
                <ul className="space-y-5">
                  {[
-                   { icon: <Zap size={14} />, text: "Automate core flows first" },
-                   { icon: <Globe2 size={14} />, text: "Regional SEO dominance" },
-                   { icon: <Rocket size={14} />, text: "Fast Launch" }
+                   { icon: <Zap size={14} />, text: t("road_tip_1") },
+                   { icon: <Globe2 size={14} />, text: t("road_tip_2") },
+                   { icon: <Rocket size={14} />, text: t("road_tip_3") }
                  ].map((tip, i) => (
                    <li key={i} className="flex items-center gap-4 text-[11px] font-bold text-gray-400 group cursor-default">
                      <span className="text-blue-500 group-hover:scale-125 transition-transform">{tip.icon}</span>
@@ -277,7 +277,7 @@ function RoadmapContent() {
             <div className="md:ml-32 space-y-12">
                <div className="flex items-center gap-6">
                   <div className="h-px bg-white/10 flex-1" />
-                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">Implementation Strategies</h4>
+                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">{t("road_strategies")}</h4>
                   <div className="h-px bg-white/10 flex-1" />
                </div>
                
@@ -289,13 +289,13 @@ function RoadmapContent() {
                 >
                    <div className="glass-card p-12 bg-white/50 dark:bg-gradient-to-br dark:from-indigo-600/10 dark:to-transparent border border-slate-200 dark:border-indigo-500/20 group hover:border-indigo-500/40 transition-all duration-700">
                       <div className="w-14 h-14 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-indigo-600 transition-all duration-500 text-indigo-600 dark:text-indigo-400 group-hover:text-white"><Rocket size={28} /></div>
-                      <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">Fast Growth Plan</h4>
-                      <p className="text-slate-500 dark:text-gray-500 font-medium leading-relaxed text-sm">Deploy automated customer acquisition funnels using AI-driven sentiment analysis to capture market share 3x faster than traditional competitors.</p>
+                      <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">{t("road_fast_growth")}</h4>
+                      <p className="text-slate-500 dark:text-gray-500 font-medium leading-relaxed text-sm">{t("road_fast_desc")}</p>
                    </div>
                    <div className="glass-card p-12 bg-white/50 dark:bg-gradient-to-br dark:from-emerald-600/10 dark:to-transparent border border-slate-200 dark:border-emerald-500/20 group hover:border-emerald-500/40 transition-all duration-700">
                       <div className="w-14 h-14 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-emerald-600 transition-all duration-500 text-emerald-600 dark:text-emerald-400 group-hover:text-white"><ShieldCheck size={28} /></div>
-                      <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">Market Safety</h4>
-                      <p className="text-slate-500 dark:text-gray-500 font-medium leading-relaxed text-sm">Diversify revenue streams by integrating local market data into your product cycle, ensuring survival even during volatile economic shifts.</p>
+                      <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">{t("road_market_safety")}</h4>
+                      <p className="text-slate-500 dark:text-gray-500 font-medium leading-relaxed text-sm">{t("road_safety_desc")}</p>
                    </div>
                 </motion.div>
             </div>
@@ -315,7 +315,7 @@ function RoadmapContent() {
               </div>
               <h3 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter uppercase italic relative z-10">{t("road_readiness")}</h3>
               <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-xl md:text-2xl font-bold leading-relaxed tracking-tight relative z-10 mb-16 px-4">
-                Analysis complete. Regional analysis confirms <span className="text-emerald-600 dark:text-emerald-500">high-probability success cycle</span> for this venture.
+                {t("road_success_conf")}
               </p>
               <button 
                 onClick={() => window.print()} 
@@ -333,9 +333,10 @@ function RoadmapContent() {
 }
 
 export default function RoadmapPage() {
+  const { t } = useLanguage();
   return (
     <ProtectedRoute>
-      <Suspense fallback={<div className="flex h-screen items-center justify-center flex-col gap-8 text-gray-500 font-black animate-pulse uppercase tracking-[0.4em] text-xs"><Loader2 className="animate-spin mb-4 w-12 h-12" /> Loading Strategy...</div>}>
+      <Suspense fallback={<div className="flex h-screen items-center justify-center flex-col gap-8 text-gray-500 font-black animate-pulse uppercase tracking-[0.4em] text-xs"><Loader2 className="animate-spin mb-4 w-12 h-12" /> {t("road_loading_strat")}</div>}>
         <RoadmapContent />
       </Suspense>
     </ProtectedRoute>

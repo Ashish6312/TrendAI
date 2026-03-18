@@ -15,9 +15,12 @@ import { useSession } from "next-auth/react";
 import AINetworkBackground from "@/components/AINetworkBackground";
 import CountUp from "react-countup";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 export default function Home() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [detectedLocation, setDetectedLocation] = useState<{ city: string, country: string } | null>(null);
 
   useEffect(() => {
@@ -55,7 +58,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#020617] dark:via-[#0f172a] dark:to-[#1e1b4b] selection:bg-blue-500/30 overflow-x-hidden min-h-screen transition-colors duration-500">
+    <div className="flex flex-col items-center bg-gradient-to-br from-indigo-50/20 via-white to-emerald-50/20 dark:from-[#020617] dark:via-[#0f172a] dark:to-[#1e1b4b] selection:bg-blue-500/30 overflow-x-hidden min-h-screen transition-colors duration-500">
 
       {/* 1. WELCOME SECTION - Immersive Split Layout */}
       <section id="hero" className="w-full relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -90,7 +93,7 @@ export default function Home() {
                 </div>
                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400">
                   <span className="animate-pulse mr-2 inline-block w-2 h-2 bg-cyan-500 rounded-full" />
-                  SMART BUSINESS AI
+                  {t('hero_badge')}
                 </span>
               </motion.div>
 
@@ -101,8 +104,8 @@ export default function Home() {
                   transition={{ duration: 1, delay: 0.2 }}
                   className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-slate-900 dark:text-white leading-[0.9] drop-shadow-sm"
                 >
-                  Blueprint Your <br />
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-600 italic">Success Story.</span>
+                  {t('hero_title_1')} <br />
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-600 italic">{t('hero_title_2')}</span>
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -110,7 +113,7 @@ export default function Home() {
                   transition={{ delay: 0.4, duration: 1 }}
                   className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-xl font-medium leading-relaxed"
                 >
-                  Use our smart AI to find the best business opportunities in your city before anyone else.
+                  {t('hero_subtitle')}
                 </motion.p>
               </div>
 
@@ -124,11 +127,11 @@ export default function Home() {
                   onClick={handleStartScan}
                   className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1 transition-all duration-300 rounded-xl active:scale-95 flex items-center justify-center gap-2"
                 >
-                  START FREE SCAN
+                  {t('btn_start_scan')}
                   <ArrowRight size={16} />
                 </button>
                 <Link href="/acquisition-tiers" className="w-full sm:w-auto px-10 py-4 bg-white/10 dark:bg-white/5 border border-slate-300/50 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-black uppercase tracking-widest transition-all duration-500 backdrop-blur-xl flex items-center justify-center hover:bg-white/20 dark:hover:bg-white/10 rounded-xl">
-                  VIEW PRICING
+                  {t('btn_pricing')}
                 </Link>
               </motion.div>
 
@@ -140,9 +143,9 @@ export default function Home() {
                 className="flex flex-wrap gap-4 pt-4 border-t border-slate-200/50 dark:border-white/5"
               >
                 {[
-                  { label: "Features", href: "#features" },
-                  { label: "Business Plan", href: "#business-plan" },
-                  { label: "Success Stories", href: "#testimonials" }
+                  { label: t('home_nav_features'), href: "#features" },
+                  { label: t('home_nav_plan'), href: "#business-plan" },
+                  { label: t('home_nav_stories'), href: "#testimonials" }
                 ].map((link, idx) => (
                   <a
                     key={idx}
@@ -168,7 +171,7 @@ export default function Home() {
                 <motion.div
                   whileHover={{ rotateY: -10, rotateX: 5 }}
                   transition={{ duration: 0.5 }}
-                  className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                  className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                 >
                   {/* Internal Grid Lines */}
                   <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-800 opacity-20" />
@@ -245,13 +248,12 @@ export default function Home() {
             className="compact-space-y-4"
           >
             <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-emerald-500/15 dark:bg-emerald-500/10 border border-emerald-500/30 dark:border-emerald-500/20 compact-text-xs font-black text-emerald-600 dark:text-emerald-400 tracking-[0.3em] uppercase shadow-lg">
-              <Globe2 size={12} /> LIVE DATA
+              <Globe2 size={12} /> {t('dash_neural_input')}
             </div>
             <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
-              Better <span className="text-emerald-600 dark:text-emerald-400 underline decoration-emerald-500/30 underline-offset-2 italic">Data.</span> <br />
-              <span className="text-slate-500 dark:text-slate-400">Launch Faster.</span>
+              {t('feat_title')}
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">Most people guess. We give you a plan. TrendAI looks at what people are searching for in your city to find what's missing.</p>
+            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">{t('feat_subtitle')}</p>
 
             <motion.div
               variants={staggerContainer}
@@ -276,8 +278,8 @@ export default function Home() {
                 >
                   <Network size={16} />
                 </motion.div>
-                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">World Search</h4>
-                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">Find business ideas in any city or town.</p>
+                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">{t('feat_1_title')}</h4>
+                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">{t('feat_1_desc')}</p>
               </motion.div>
               <motion.div
                 variants={fadeInUp}
@@ -296,8 +298,8 @@ export default function Home() {
                 >
                   <Layers size={16} />
                 </motion.div>
-                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">Profit Focus</h4>
-                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">Our AI predicts profits to help you lower risk.</p>
+                <h4 className="compact-text-lg font-black text-slate-900 dark:text-white">{t('feat_2_title')}</h4>
+                <p className="compact-text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">{t('feat_2_desc')}</p>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -384,16 +386,15 @@ export default function Home() {
               <Cpu size={12} /> EASY PLANNER
             </div>
             <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
-              From <span className="text-amber-600 dark:text-amber-400 italic">Idea</span> <br />
-              <span className="text-slate-500 dark:text-slate-400">To Success.</span>
+              {t('road_directive')}
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">Once you find a good idea, we help you create a 6-month step-by-step plan. We guide you from the starting point to growing your business.</p>
+            <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium leading-relaxed drop-shadow-sm">{t('road_confirmed_desc')}</p>
 
             <ul className="compact-space-y-4 relative">
               {[
-                { title: "Understand Demand", desc: "Know what your local customers are looking for.", delay: 0.1 },
-                { title: "Profit Guide", desc: "See how much money you can realistically make.", delay: 0.2 },
-                { title: "Next Steps", desc: "Easy, actionable steps to start your business.", delay: 0.3 }
+                { title: t('feat_1_title'), desc: t('feat_1_desc'), delay: 0.1 },
+                { title: t('feat_2_title'), desc: t('feat_2_desc'), delay: 0.2 },
+                { title: t('feat_3_title'), desc: t('feat_3_desc'), delay: 0.3 }
               ].map((item, idx) => (
                 <motion.li
                   key={idx}
@@ -440,14 +441,14 @@ export default function Home() {
           className="text-center compact-space-y-4 mb-8"
         >
           <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-blue-500/15 dark:bg-blue-500/10 border border-blue-500/30 dark:border-blue-500/20 compact-text-xs font-black text-blue-600 dark:text-blue-400 tracking-[0.3em] uppercase shadow-lg">
-            <Zap size={12} /> POWERFUL FEATURES
+            <Zap size={12} /> {t('home_feat_badge')}
           </div>
           <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
-            Everything You Need <br />
-            <span className="text-blue-600 dark:text-blue-400 italic">To Succeed.</span>
+            {t('home_feat_title_1')} <br />
+            <span className="text-blue-600 dark:text-blue-400 italic">{t('home_feat_title_2')}</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-300 compact-text-base font-medium max-w-3xl mx-auto leading-relaxed px-2 drop-shadow-sm">
-            From market research to business planning, we provide all the tools entrepreneurs need to launch successful ventures.
+            {t('home_feat_desc')}
           </p>
         </motion.div>
 
@@ -460,43 +461,43 @@ export default function Home() {
           {[
             {
               icon: <Globe2 size={20} />,
-              title: "World Market Data",
-              description: "Get live data from 200+ cities with AI tips.",
+              title: t('home_feat_1_title'),
+              description: t('home_feat_1_desc'),
               color: "emerald",
               delay: 0.1
             },
             {
               icon: <Cpu size={20} />,
-              title: "Smart AI Help",
-              description: "Our AI finds the best gaps and predicts your success.",
+              title: t('home_feat_2_title'),
+              description: t('home_feat_2_desc'),
               color: "blue",
               delay: 0.2
             },
             {
               icon: <Rocket size={20} />,
-              title: "6-Month Plan",
-              description: "A step-by-step roadmap to guide you from start to finish.",
+              title: t('home_feat_3_title'),
+              description: t('home_feat_3_desc'),
               color: "purple",
               delay: 0.3
             },
             {
               icon: <Network size={20} />,
-              title: "Competition Analysis",
-              description: "Understand your competitive landscape with detailed competitor insights and positioning strategies.",
+              title: t('home_feat_4_title'),
+              description: t('home_feat_4_desc'),
               color: "amber",
               delay: 0.4
             },
             {
               icon: <Layers size={20} />,
-              title: "Profit Forecasting",
-              description: "Accurate revenue and profit predictions based on local market conditions and demand patterns.",
+              title: t('home_feat_5_title'),
+              description: t('home_feat_5_desc'),
               color: "rose",
               delay: 0.5
             },
             {
               icon: <Zap size={20} />,
-              title: "Real-Time Updates",
-              description: "Stay ahead with live market updates, trend alerts, and opportunity notifications.",
+              title: t('home_feat_6_title'),
+              description: t('home_feat_6_desc'),
               color: "indigo",
               delay: 0.6
             }
@@ -568,11 +569,11 @@ export default function Home() {
             className="text-center compact-space-y-4 mb-8"
           >
             <div className="inline-flex items-center compact-gap-2 compact-p-3 rounded-full bg-purple-500/15 dark:bg-purple-500/10 border border-purple-500/30 dark:border-purple-500/20 compact-text-xs font-black text-purple-600 dark:text-purple-400 tracking-[0.3em] uppercase shadow-lg">
-              <Star size={12} /> SUCCESS STORIES
+              <Star size={12} /> {t('home_story_badge')}
             </div>
             <h2 className="compact-text-3xl sm:compact-text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] drop-shadow-sm">
-              Trusted by <span className="text-purple-600 dark:text-purple-400 italic">Founders</span> <br />
-              <span className="text-slate-500 dark:text-slate-400">Worldwide.</span>
+              {t('home_story_title_1')} <br />
+              <span className="text-slate-500 dark:text-slate-400">{t('home_story_title_2')}</span>
             </h2>
           </motion.div>
 
@@ -587,27 +588,27 @@ export default function Home() {
               {[
                 {
                   name: "Sarah Chen",
-                  role: "Food Truck Owner",
+                  role: t('home_story_1_role'),
                   location: "San Francisco, CA",
-                  quote: "TrendAI helped me find the perfect location for my food truck. I'm now making 3x more revenue than my previous spot!",
+                  quote: t('home_story_1_quote'),
                   revenue: "$45K/month",
                   avatar: "https://i.pravatar.cc/100?img=1",
                   delay: 0.1
                 },
                 {
                   name: "Marcus Rodriguez",
-                  role: "Tech Consultant",
+                  role: t('home_story_2_role'),
                   location: "Austin, TX",
-                  quote: "The AI analysis was spot-on. I launched my consulting business in an underserved market and got 20 clients in the first month.",
+                  quote: t('home_story_2_quote'),
                   revenue: "$12K/month",
                   avatar: "https://i.pravatar.cc/100?img=2",
                   delay: 0.2
                 },
                 {
                   name: "Emily Johnson",
-                  role: "Fitness Studio Owner",
+                  role: t('home_story_3_role'),
                   location: "Denver, CO",
-                  quote: "Found a gap in boutique fitness that nobody else saw. My studio is booked solid 6 months in advance!",
+                  quote: t('home_story_3_quote'),
                   revenue: "$28K/month",
                   avatar: "https://i.pravatar.cc/100?img=3",
                   delay: 0.3
@@ -623,7 +624,7 @@ export default function Home() {
                     boxShadow: "0 25px 50px -12px rgba(139, 92, 246, 0.25)"
                   }}
                   transition={{ duration: 0.3 }}
-                  className="group relative compact-testimonial bg-white/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50 hover:border-purple-500/30 dark:hover:border-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden shadow-lg hover:shadow-2xl backdrop-blur-sm rounded-xl"
+                  className="group relative compact-testimonial bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 hover:border-purple-500/30 dark:hover:border-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden shadow-lg hover:shadow-2xl backdrop-blur-sm rounded-xl"
                 >
                   {/* Animated background */}
                   <motion.div
@@ -696,7 +697,7 @@ export default function Home() {
                       className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-slate-700/50"
                     >
                       <span className="compact-text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Monthly Revenue
+                        {t('home_story_revenue_label')}
                       </span>
                       <motion.span
                         whileHover={{ scale: 1.1 }}
@@ -723,7 +724,7 @@ export default function Home() {
       </section>
 
       {/* 6. FINAL CTA - Compact */}
-      <section id="get-started" className="w-full min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <section id="get-started" className="w-full min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-t border-slate-200 dark:border-white/5 pt-24 sm:pt-32 pb-20">
         {/* Background Effects */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/20 dark:bg-emerald-500/10 rounded-full blur-3xl animate-pulse-slow" />
@@ -743,7 +744,7 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               whileHover={{ scale: 1.05, rotate: 2 }}
               transition={{ delay: 0.2 }}
-              className="md:absolute md:top-0 md:left-0 p-3 rounded-xl bg-white/10 dark:bg-white/5 border border-slate-300/20 dark:border-white/10 backdrop-blur-xl group cursor-pointer"
+              className="md:absolute md:top-20 md:-left-24 lg:-left-40 p-3 rounded-xl bg-white/90 dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-xl group cursor-pointer shadow-2xl z-20"
             >
             <motion.div
               initial={{ scale: 0 }}
@@ -766,7 +767,7 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             whileHover={{ scale: 1.05, rotate: -2 }}
             transition={{ delay: 0.4 }}
-            className="md:absolute md:top-0 md:right-0 p-3 rounded-xl bg-white/10 dark:bg-white/5 border border-slate-300/20 dark:border-white/10 backdrop-blur-xl group cursor-pointer"
+            className="md:absolute md:top-20 md:-right-24 lg:-right-40 p-3 rounded-xl bg-white/90 dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-xl group cursor-pointer shadow-2xl z-20"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -786,16 +787,15 @@ export default function Home() {
           </div>
 
           {/* Main Content - Compact */}
-          <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-6 sm:space-y-8 pt-10 md:pt-20 lg:pt-32">
 
             {/* Title */}
             <div className="space-y-3 sm:space-y-4">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9]">
-                Start Your <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 dark:from-emerald-400 dark:via-teal-400 dark:to-blue-500">Business Now.</span>
+                {t('banner_title')}
               </h2>
               <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base md:text-lg font-medium max-w-3xl mx-auto leading-relaxed">
-                Join thousands of founders. Start your free market search today and find your next big opportunity.
+                {t('banner_desc')}
               </p>
             </div>
 
@@ -806,14 +806,14 @@ export default function Home() {
                 className="group px-8 py-3 sm:px-10 sm:py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-black uppercase tracking-wider shadow-[0_15px_30px_-10px_rgba(16,185,129,0.4)] hover:-translate-y-2 hover:scale-105 transition-all duration-500 active:scale-95 flex items-center gap-2"
               >
                 <Rocket size={16} className="group-hover:rotate-12 transition-transform" />
-                GET STARTED
+                {t('banner_btn')}
               </button>
 
               <Link
                 href="/acquisition-tiers"
                 className="px-8 py-3 sm:px-10 sm:py-4 rounded-xl bg-slate-200/80 dark:bg-white/10 border border-slate-300/50 dark:border-white/20 text-slate-800 dark:text-white hover:bg-slate-300/80 dark:hover:bg-white/20 text-sm font-black uppercase tracking-wider transition-all duration-500 backdrop-blur-xl flex items-center justify-center hover:-translate-y-1"
               >
-                VIEW PRICING
+                {t('btn_pricing')}
               </Link>
             </div>
 
@@ -823,9 +823,9 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ delay: 1, type: "spring", bounce: 0.4 }}
-              className="flex justify-center"
+              className="flex justify-center pt-10 sm:pt-16"
             >
-              <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-white/20 dark:bg-white/5 border border-slate-300/30 dark:border-white/10 backdrop-blur-xl group cursor-pointer">
+              <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-white/95 dark:bg-white/5 border border-slate-300 dark:border-white/10 backdrop-blur-xl group cursor-pointer shadow-xl">
                 <motion.div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}

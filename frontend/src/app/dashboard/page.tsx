@@ -365,7 +365,7 @@ function Dashboard() {
     <ProtectedRoute>
       <div className="bg-white dark:bg-[#020617] min-h-screen text-slate-900 dark:text-white transition-all duration-500 relative">
         {/* Theme-aware Background with Glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-[#020617] dark:via-[#0f172a] dark:to-[#1e1b4b] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 via-white to-emerald-50/20 dark:from-[#020617] dark:via-[#0f172a] dark:to-[#1e1b4b] pointer-events-none" />
         <div className="absolute top-0 left-0 w-full h-[500px] bg-emerald-500/[0.03] dark:bg-emerald-500/5 blur-[120px] pointer-events-none" />
         
         {/* Main Content Container */}
@@ -393,23 +393,23 @@ function Dashboard() {
                   </div>
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-900 dark:text-white leading-none tracking-tight mb-4">
-                  AI Market <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-blue-600 dark:from-emerald-400 dark:to-blue-500">Analysis.</span>
+                  {t('dash_ai_insights')}
                 </h1>
                 <p className="text-slate-600 dark:text-gray-400 text-base sm:text-xl max-w-2xl font-medium leading-relaxed">
-                  Enter a city or region to discover profitable business opportunities. Our AI analyzes market data, competition, and local trends in real-time.
+                  {t('dash_ai_desc')}
                 </p>
                 
                 {/* Status Indicator Pills from Image */}
                 <div className="flex flex-wrap gap-3 pt-4">
                   {[
-                    { label: "Live Market Data", active: true, icon: <TrendingUp size={12} /> },
+                    { label: t('dash_vector_global'), active: true, icon: <TrendingUp size={12} /> },
                     userLocation ? { 
                       label: `${userLocation.city}, ${userLocation.country}`, 
                       active: true, 
                       icon: <Globe2 size={12} className="text-blue-400" />,
                       special: true 
                     } : null,
-                    { label: "AI Predictions", active: false, icon: <Cpu size={12} /> },
+                    { label: t('dash_vector_predict'), active: false, icon: <Cpu size={12} /> },
                     { label: "Smart Insights", active: false, icon: <Lightbulb size={12} /> }
                   ].filter(Boolean).map((pill: any, idx) => (
                     <motion.div 
@@ -420,7 +420,7 @@ function Dashboard() {
                         ? pill.special 
                           ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)] animate-pulse-slow'
                           : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 dark:text-gray-500'
+                        : 'bg-white dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-500 dark:text-gray-500 shadow-sm'
                       }`}
                     >
                       <div className={`transition-all duration-300 group-hover:scale-125 ${pill.active ? pill.special ? 'text-blue-500' : 'text-emerald-500' : 'text-slate-400'}`}>
@@ -457,8 +457,8 @@ function Dashboard() {
               
               {/* Region Search Card */}
               <UniformCard 
-                title="Region Search"
-                subtitle="Find business opportunities in your area"
+                title={t('dash_market_scope')}
+                subtitle={t('dash_empty_desc')}
                 icon={<Target className="w-5 h-5 sm:w-6 sm:h-6" />}
                 variant="glass"
                 size="lg"
@@ -467,7 +467,7 @@ function Dashboard() {
                 <form onSubmit={handleAnalyze} className="space-y-6 sm:space-y-8">
                   <div className="space-y-4">
                     <label className="text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider pl-1">
-                      CITY OR REGION
+                      {t('dash_target_loc')}
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 dark:text-gray-400 z-10" size={18} />
@@ -479,8 +479,8 @@ function Dashboard() {
                           setShowSuggestions(true);
                         }}
                         onFocus={() => setShowSuggestions(true)}
-                        className="w-full bg-slate-50 dark:bg-[#050818] border-2 border-slate-300 dark:border-slate-600 rounded-xl py-4 sm:py-5 pl-12 sm:pl-14 pr-14 text-base font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none hover:border-slate-400 dark:hover:border-slate-500 shadow-sm"
-                        placeholder="Type city or region name..."
+                        className="w-full bg-white dark:bg-[#050818] border-2 border-slate-300 dark:border-slate-600 rounded-xl py-4 sm:py-5 pl-12 sm:pl-14 pr-14 text-base font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none hover:border-slate-400 dark:hover:border-slate-500 shadow-sm"
+                        placeholder={t('dash_enter_city')}
                         required
                         autoComplete="off"
                       />
@@ -498,7 +498,7 @@ function Dashboard() {
                             } as any);
                           }}
                           className="p-3 rounded-lg hover:bg-emerald-500/10 text-slate-600 dark:text-gray-400 hover:text-emerald-500 transition-all"
-                          title="Use current location"
+                          title={t('dash_use_current_loc')}
                         >
                           <MapPin size={18} className={`${!userLocation ? "animate-spin" : ""} transition-transform`} />
                         </button>
@@ -520,7 +520,7 @@ function Dashboard() {
                                   e.preventDefault();
                                   handleSelectSuggestion(s);
                                 }}
-                                className="w-full text-left p-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
+                                className="w-full text-left p-4 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-600"
                               >
                                 <div className="truncate">{s.display_name}</div>
                               </button>
@@ -540,21 +540,21 @@ function Dashboard() {
                     {loading ? (
                       <div className="flex items-center justify-center gap-3">
                         <Loader2 className="animate-spin" size={20} />
-                        <span>Searching...</span>
+                        <span>{t('dash_analyzing')}</span>
                       </div>
                     ) : hasReachedAnalysisLimit(analysisCount) ? (
-                      "LIMIT REACHED"
+                      t('dash_limit_reached')
                     ) : (
-                      "SEARCH NOW"
+                      t('dash_analyze')
                     )}
                   </button>
 
                   {/* Upgrade Notice */}
                   {hasReachedAnalysisLimit(analysisCount) && (
                     <div className="text-center p-4 bg-red-50 dark:bg-red-500/10 rounded-xl border border-red-200 dark:border-red-500/20">
-                      <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Analysis limit reached for your plan</p>
+                      <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">{t('dash_limit_desc')}</p>
                       <Link href="/acquisition-tiers" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
-                        UPGRADE NOW →
+                        {t('dash_upgrade_now')} →
                       </Link>
                     </div>
                   )}
@@ -562,19 +562,19 @@ function Dashboard() {
               </UniformCard>
                   {/* Recent Searches Card */}
                   <UniformCard 
-                    title="Recent Searches"
+                    title={t('dash_recent_searches')}
                     icon={<Clock className="w-6 h-6" />}
                     variant="default"
                     size="lg"
-                    className="shadow-lg border-2 border-slate-200/50 dark:border-white/10"
+                    className="shadow-lg border-2 border-slate-300 dark:border-white/10"
                   >
                     <div className="flex items-center justify-between mb-6">
-                      <span className="text-sm font-medium text-slate-600 dark:text-gray-400">Your search history</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-gray-400">{t('dash_history_desc')}</span>
                       <button
                         onClick={fetchHistory}
                         className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
                       >
-                        Refresh
+                        {t('dash_refresh')}
                       </button>
                     </div>
                     
@@ -586,7 +586,7 @@ function Dashboard() {
                               key={i}
                               type="button"
                               onClick={() => loadFromHistory(item)}
-                              className="w-full p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/30 hover:bg-slate-100 dark:hover:bg-white/10 text-left group transition-all hover:shadow-md"
+                              className="w-full p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:border-blue-500/30 hover:bg-slate-50 dark:hover:bg-white/10 text-left group transition-all hover:shadow-md"
                             >
                               <div className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate mb-1">
                                 {item.area}
@@ -736,12 +736,12 @@ function Dashboard() {
                       className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 shadow-2xl border-2 border-slate-200/50 dark:border-white/10"
                     >
                       <div className="space-y-4">
-                        <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Search Complete</div>
+                        <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{t('dash_results_header')}</div>
                         <h2 className="text-4xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
                           {area}
                         </h2>
                         <p className="text-slate-600 dark:text-gray-400 text-lg font-medium">
-                          Found {result.recommendations?.length || 0} business opportunities
+                          Found {result.recommendations?.length || 0} {t('dash_strategic_opps')}
                         </p>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-4">
@@ -758,7 +758,7 @@ function Dashboard() {
                           )}&lang=${language}`} 
                           className={`px-8 py-4 bg-gradient-to-r ${theme.gradient} hover:opacity-90 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
                         >
-                          Create 6-Month Plan
+                          {t('dash_view_plan')}
                         </Link>
                       </div>
                     </UniformCard>
