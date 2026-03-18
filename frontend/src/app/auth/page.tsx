@@ -54,9 +54,9 @@ export default function AuthPage() {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const callbackUrl = urlParams.get('callbackUrl') || '/dashboard';
-      const result = await signIn('google', { 
+      const result = await signIn('google', {
         callbackUrl,
-        redirect: false 
+        redirect: false
       });
       if (result?.ok) {
         window.location.href = callbackUrl;
@@ -110,7 +110,7 @@ export default function AuthPage() {
         name: formData.name.trim() || undefined,
         isSignUp: (!isLogin).toString(),
         callbackUrl,
-        redirect: false 
+        redirect: false
       });
       if (result?.error) {
         setError(`Failed: ${result.error}`);
@@ -191,7 +191,7 @@ export default function AuthPage() {
                   <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Smart Systems</div>
                 </div>
               </motion.div>
-              
+
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">
                   {isLogin ? t('auth_welcome') : t('auth_join')}
@@ -223,16 +223,16 @@ export default function AuthPage() {
                   {!isLogin && (
                     <div className="relative group">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
-                      <input type="text" placeholder={t('auth_name')} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required={!isLogin} autoComplete="name" />
+                      <input type="text" placeholder={t('auth_name')} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required={!isLogin} autoComplete="name" />
                     </div>
                   )}
                   <div className="relative group">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
-                    <input type="email" placeholder={t('auth_email')} value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required autoComplete="email" />
+                    <input type="email" placeholder={t('auth_email')} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required autoComplete="email" />
                   </div>
                   <div className="relative group">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
-                    <input type={showPassword ? "text" : "password"} placeholder={t('auth_pass')} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full pl-10 pr-12 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required autoComplete={isLogin ? "current-password" : "new-password"} />
+                    <input type={showPassword ? "text" : "password"} placeholder={t('auth_pass')} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full pl-10 pr-12 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required autoComplete={isLogin ? "current-password" : "new-password"} />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -240,7 +240,7 @@ export default function AuthPage() {
                   {!isLogin && (
                     <div className="relative group">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
-                      <input type={showPassword ? "text" : "password"} placeholder={t('auth_confirm')} value={formData.confirmPassword} onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required={!isLogin} autoComplete="new-password" />
+                      <input type={showPassword ? "text" : "password"} placeholder={t('auth_confirm')} value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-white/90 dark:bg-slate-800/50 border-2 border-slate-300/80 dark:border-slate-700/50 rounded-xl text-sm font-medium focus:border-emerald-500/70 focus:outline-none backdrop-blur-sm shadow-sm" required={!isLogin} autoComplete="new-password" />
                     </div>
                   )}
                   <button type="submit" disabled={loading} className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-400 disabled:to-slate-500 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25">
@@ -296,7 +296,7 @@ export default function AuthPage() {
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3 group">
                   <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
-                    {React.cloneElement(feature.icon as React.ReactElement, { size: 14 })}
+                    {React.cloneElement(feature.icon as React.ReactElement<any>, { size: 14 })}
                   </div>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors duration-200">{feature.text}</span>
                 </div>
